@@ -17,16 +17,21 @@ import org.springframework.web.bind.annotation.*;
 import com.researchjournal.client.AIAnalysisClient;
 import java.util.List;
 
+import com.researchjournal.dto.AIAnalysisResponse;
+import com.researchjournal.service.AIAnalysisService;
+
 @RestController
 @RequestMapping("/api/manuscripts")
 public class ManuscriptController {
 
         private final ManuscriptService manuscriptService;
+        private final AIAnalysisService aiAnalysisService;
 
         public ManuscriptController(
-                        ManuscriptService manuscriptService) {
+                        ManuscriptService manuscriptService, AIAnalysisService aiAnalysisService) {
 
                 this.manuscriptService = manuscriptService;
+                this.aiAnalysisService = aiAnalysisService;
         }
 
         @PostMapping
@@ -150,6 +155,19 @@ public class ManuscriptController {
 
                 return ResponseEntity.ok(
                                 manuscriptService.analyzeManuscript(
+                                                id,
+                                                author));
+        }
+
+        @GetMapping("/{id}/analysis")
+        public ResponseEntity<AIAnalysisResponse> getLatestAnalysis(
+                        @PathVariable Long id,
+                        Authentication authentication) {
+
+                User author = (User) authentication.getPrincipal();
+
+                return ResponseEntity.ok(
+                                aiAnalysisService.getLatestAnalysis(
                                                 id,
                                                 author));
         }

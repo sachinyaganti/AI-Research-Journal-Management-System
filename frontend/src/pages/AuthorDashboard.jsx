@@ -37,6 +37,7 @@ function AuthorDashboard() {
 
             const data = await response.json();
             setManuscripts(data);
+
         } catch (err) {
             setError(
                 err.message || "Failed to load manuscripts"
@@ -45,11 +46,73 @@ function AuthorDashboard() {
             setLoading(false);
         }
     };
+    const fetchAnalysis = async (manuscriptId) => {
+        try {
+            const response = await fetch(
+                `${API_BASE_URL}/api/manuscripts/${manuscriptId}/analysis`,
+                {
+                    method: "GET",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            if (response.status === 404) {
+                return;
+            }
+
+            if (!response.ok) {
+                console.error(
+                    `Failed to load AI analysis for manuscript ${manuscriptId}: ${response.status}`
+                );
+                return;
+            }
+
+            const data = await response.json();
+
+            const normalizedData = {
+                ...data,
+                abstract_word_count: data.abstract_word_count ?? data.abstractWordCount ?? 0,
+                keyword_count: data.keyword_count ?? data.keywordCount ?? 0,
+                abstract_quality: data.abstract_quality ?? data.abstractQuality ?? "",
+                methodology_quality:
+                    data.methodology_quality ?? data.methodologyQuality ?? "",
+                results_quality:
+                    data.results_quality ?? data.resultsQuality ?? "",
+                conclusion_quality:
+                    data.conclusion_quality ?? data.conclusionQuality ?? "",
+                writing_quality:
+                    data.writing_quality ?? data.writingQuality ?? "",
+                missing_sections:
+                    data.missing_sections ?? data.missingSections ?? [],
+                writing_issues:
+                    data.writing_issues ?? data.writingIssues ?? [],
+                suggestions: data.suggestions ?? [],
+            };
+
+            setAnalysisResults((previous) => ({
+                ...previous,
+                [manuscriptId]: normalizedData,
+            }));
+        } catch (err) {
+            console.error(
+                "Failed to load saved AI analysis:",
+                err
+            );
+        }
+    };
 
     useEffect(() => {
-        if (token) {
-            fetchManuscripts();
+        if (!token) {
+            return;
         }
+
+        const loadDashboard = async () => {
+            await fetchManuscripts();
+        };
+
+        loadDashboard();
     }, [token]);
 
     const handleSubmit = async (id) => {
