@@ -5,8 +5,9 @@ from app.models.manuscript_analysis import (
     ManuscriptAnalysisResponse,
 )
 
+from app.services.llm_analysis_service import analyze_with_llm
 
-def analyze_manuscript(
+def analyze_manuscript_baseline(
     request: ManuscriptAnalysisRequest,
 ) -> ManuscriptAnalysisResponse:
 
@@ -247,3 +248,44 @@ def analyze_manuscript(
         writing_issues=writing_issues,
         suggestions=suggestions,
     )
+def analyze_manuscript(
+    request: ManuscriptAnalysisRequest,
+) -> ManuscriptAnalysisResponse:
+
+    try:
+        llm_result = analyze_with_llm(request)
+
+        return ManuscriptAnalysisResponse(
+            title=request.title,
+            category=request.category,
+            abstract_word_count=len(
+                re.findall(
+                    r"\b[\w'-]+\b",
+                    request.abstractText,
+                )
+            ),
+            keyword_count=len(
+                [
+                    keyword.strip()
+                    for keyword in request.keywords.split(",")
+                    if keyword.strip()
+                ]
+            ),
+            abstract_quality=llm_result["abstract_quality"],
+            methodology_quality=llm_result["methodology_quality"],
+            results_quality=llm_result["results_quality"],
+            conclusion_quality=llm_result["conclusion_quality"],
+            writing_quality=llm_result["writing_quality"],
+            relevance=llm_result["relevance"],
+            missing_sections=llm_result["missing_sections"],
+            writing_issues=llm_result["writing_issues"],
+            suggestions=llm_result["suggestions"],
+        )
+
+    except Exception as error:
+        print(
+            f"LLM analysis failed. "
+            f"Using deterministic baseline. Error: {error}"
+        )
+
+        return analyze_manuscript_baseline(request)
