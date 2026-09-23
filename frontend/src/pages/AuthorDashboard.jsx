@@ -12,6 +12,8 @@ function AuthorDashboard() {
     const [error, setError] = useState("");
     const [analysisResults, setAnalysisResults] = useState({});
     const [analyzingId, setAnalyzingId] = useState(null);
+    const [similarityResults, setSimilarityResults] = useState({});
+    const [checkingSimilarityId, setCheckingSimilarityId] = useState(null);
 
     const fetchManuscripts = async () => {
         setLoading(true);
@@ -214,6 +216,42 @@ function AuthorDashboard() {
         }
     };
 
+    const handleCheckSimilarity = async (manuscriptId) => {
+        setError("");
+        setCheckingSimilarityId(manuscriptId);
+
+        try {
+            const response = await fetch(
+                `${API_BASE_URL}/api/manuscripts/${manuscriptId}/similarity`,
+                {
+                    method: "POST",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    data.message || "Failed to check manuscript similarity"
+                );
+            }
+
+            setSimilarityResults((previous) => ({
+                ...previous,
+                [manuscriptId]: data,
+            }));
+        } catch (err) {
+            setError(
+                err.message || "Failed to check manuscript similarity"
+            );
+        } finally {
+            setCheckingSimilarityId(null);
+        }
+    };
+
     return (
         <div style={{ padding: "32px", textAlign: "left" }}>
             <header
@@ -290,42 +328,85 @@ function AuthorDashboard() {
                                         <div
                                             style={{
                                                 marginTop: "16px",
-                                                padding: "20px",
-                                                border: "1px solid #ccc",
-                                                borderRadius: "8px",
+                                                padding: "24px",
+                                                border: "1px solid #444",
+                                                borderRadius: "10px",
+                                                backgroundColor: "#17181f",
                                             }}
                                         >
-                                            <h3>AI Analysis</h3>
+                                            <h3 style={{ marginTop: 0 }}>
+                                                AI Manuscript Analysis
+                                            </h3>
 
-                                            <p>
-                                                <strong>Abstract Quality:</strong>{" "}
-                                                {analysisResults[manuscript.id].abstract_quality}
+                                            <p
+                                                style={{
+                                                    marginTop: "4px",
+                                                    marginBottom: "20px",
+                                                    opacity: 0.75,
+                                                    fontSize: "14px",
+                                                }}
+                                            >
+                                                AI-powered academic analysis based on the manuscript
+                                                information provided.
                                             </p>
 
-                                            <p>
-                                                <strong>Methodology:</strong>{" "}
-                                                {analysisResults[manuscript.id].methodology_quality}
-                                            </p>
+                                            {/* Assessment */}
+                                            <h4>Overall Assessment</h4>
 
-                                            <p>
-                                                <strong>Results:</strong>{" "}
-                                                {analysisResults[manuscript.id].results_quality}
-                                            </p>
+                                            <div
+                                                style={{
+                                                    display: "grid",
+                                                    gridTemplateColumns:
+                                                        "repeat(auto-fit, minmax(180px, 1fr))",
+                                                    gap: "10px",
+                                                    marginBottom: "20px",
+                                                }}
+                                            >
+                                                <div>
+                                                    <strong>Abstract</strong>
+                                                    <p>
+                                                        {analysisResults[manuscript.id].abstract_quality}
+                                                    </p>
+                                                </div>
 
-                                            <p>
-                                                <strong>Conclusion:</strong>{" "}
-                                                {analysisResults[manuscript.id].conclusion_quality}
-                                            </p>
+                                                <div>
+                                                    <strong>Methodology</strong>
+                                                    <p>
+                                                        {analysisResults[manuscript.id].methodology_quality}
+                                                    </p>
+                                                </div>
 
-                                            <p>
-                                                <strong>Writing Quality:</strong>{" "}
-                                                {analysisResults[manuscript.id].writing_quality}
-                                            </p>
+                                                <div>
+                                                    <strong>Results</strong>
+                                                    <p>
+                                                        {analysisResults[manuscript.id].results_quality}
+                                                    </p>
+                                                </div>
 
-                                            <p>
-                                                <strong>Research Relevance:</strong>{" "}
-                                                {analysisResults[manuscript.id].relevance}
-                                            </p>
+                                                <div>
+                                                    <strong>Conclusion</strong>
+                                                    <p>
+                                                        {analysisResults[manuscript.id].conclusion_quality}
+                                                    </p>
+                                                </div>
+
+                                                <div>
+                                                    <strong>Writing Quality</strong>
+                                                    <p>
+                                                        {analysisResults[manuscript.id].writing_quality}
+                                                    </p>
+                                                </div>
+
+                                                <div>
+                                                    <strong>Research Relevance</strong>
+                                                    <p>
+                                                        {analysisResults[manuscript.id].relevance}
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            {/* Basic Statistics */}
+                                            <h4>Manuscript Statistics</h4>
 
                                             <p>
                                                 <strong>Abstract Word Count:</strong>{" "}
@@ -337,9 +418,10 @@ function AuthorDashboard() {
                                                 {analysisResults[manuscript.id].keyword_count}
                                             </p>
 
-                                            {analysisResults[manuscript.id].missing_sections.length > 0 && (
-                                                <div>
-                                                    <strong>Missing / Weak Sections:</strong>
+                                            {/* Missing Sections */}
+                                            {analysisResults[manuscript.id].missing_sections?.length > 0 && (
+                                                <div style={{ marginTop: "20px" }}>
+                                                    <h4>Missing / Weak Sections</h4>
 
                                                     <ul>
                                                         {analysisResults[manuscript.id].missing_sections.map(
@@ -351,9 +433,10 @@ function AuthorDashboard() {
                                                 </div>
                                             )}
 
-                                            {analysisResults[manuscript.id].writing_issues.length > 0 && (
-                                                <div>
-                                                    <strong>Writing Issues:</strong>
+                                            {/* Writing Issues */}
+                                            {analysisResults[manuscript.id].writing_issues?.length > 0 && (
+                                                <div style={{ marginTop: "20px" }}>
+                                                    <h4>Writing Issues</h4>
 
                                                     <ul>
                                                         {analysisResults[manuscript.id].writing_issues.map(
@@ -365,17 +448,45 @@ function AuthorDashboard() {
                                                 </div>
                                             )}
 
-                                            <div>
-                                                <strong>Suggestions:</strong>
+                                            {/* Suggestions */}
+                                            {analysisResults[manuscript.id].suggestions?.length > 0 && (
+                                                <div style={{ marginTop: "20px" }}>
+                                                    <h4>AI Suggestions</h4>
 
-                                                <ul>
-                                                    {analysisResults[manuscript.id].suggestions.map(
-                                                        (suggestion, index) => (
-                                                            <li key={index}>{suggestion}</li>
-                                                        )
-                                                    )}
-                                                </ul>
-                                            </div>
+                                                    <ol>
+                                                        {analysisResults[manuscript.id].suggestions.map(
+                                                            (suggestion, index) => (
+                                                                <li
+                                                                    key={index}
+                                                                    style={{
+                                                                        marginBottom: "8px",
+                                                                    }}
+                                                                >
+                                                                    {suggestion}
+                                                                </li>
+                                                            )
+                                                        )}
+                                                    </ol>
+                                                </div>
+                                            )}
+
+                                            {/* Analysis Time */}
+                                            {(analysisResults[manuscript.id].analyzedAt ||
+                                                analysisResults[manuscript.id].analyzed_at) && (
+                                                    <p
+                                                        style={{
+                                                            marginTop: "20px",
+                                                            fontSize: "13px",
+                                                            opacity: 0.65,
+                                                        }}
+                                                    >
+                                                        <strong>Analyzed At:</strong>{" "}
+                                                        {new Date(
+                                                            analysisResults[manuscript.id].analyzedAt ||
+                                                            analysisResults[manuscript.id].analyzed_at
+                                                        ).toLocaleString()}
+                                                    </p>
+                                                )}
                                         </div>
                                     )}
                                     <button
@@ -390,6 +501,78 @@ function AuthorDashboard() {
                                             ? "Analyzing..."
                                             : "Analyze with AI"}
                                     </button>
+                                    <button
+                                        onClick={() => handleCheckSimilarity(manuscript.id)}
+                                        disabled={checkingSimilarityId === manuscript.id}
+                                        style={{
+                                            marginTop: "12px",
+                                            marginRight: "10px",
+                                        }}
+                                    >
+                                        {checkingSimilarityId === manuscript.id
+                                            ? "Checking..."
+                                            : "Check Similarity"}
+                                    </button>
+                                    {similarityResults[manuscript.id] && (
+                                        <div
+                                            style={{
+                                                marginTop: "20px",
+                                                padding: "20px",
+                                                border: "1px solid #444",
+                                                borderRadius: "10px",
+                                                backgroundColor: "#17181f",
+                                            }}
+                                        >
+                                            <h3 style={{ marginTop: 0 }}>
+                                                Manuscript Similarity Analysis
+                                            </h3>
+
+                                            <p>
+                                                <strong>Similarity Percentage:</strong>{" "}
+                                                {similarityResults[manuscript.id].similarity_percentage ??
+                                                    similarityResults[manuscript.id].similarityPercentage ??
+                                                    0}
+                                                %
+                                            </p>
+
+                                            <p>
+                                                <strong>Status:</strong>{" "}
+                                                {similarityResults[manuscript.id].status}
+                                            </p>
+
+                                            {similarityResults[manuscript.id].matches?.length > 0 ? (
+                                                <div>
+                                                    <h4>Matching Manuscripts</h4>
+
+                                                    <ul>
+                                                        {similarityResults[manuscript.id].matches.map(
+                                                            (match) => (
+                                                                <li
+                                                                    key={match.manuscript_id ?? match.manuscriptId}
+                                                                    style={{ marginBottom: "10px" }}
+                                                                >
+                                                                    <strong>
+                                                                        {match.title}
+                                                                    </strong>
+
+                                                                    {" — "}
+
+                                                                    {match.similarity_percentage ??
+                                                                        match.similarityPercentage ??
+                                                                        0}
+                                                                    %
+                                                                </li>
+                                                            )
+                                                        )}
+                                                    </ul>
+                                                </div>
+                                            ) : (
+                                                <p>
+                                                    No similar manuscripts were found.
+                                                </p>
+                                            )}
+                                        </div>
+                                    )}
                                     <p>
                                         <strong>Category:</strong>{" "}
                                         {manuscript.category}

@@ -1,7 +1,11 @@
-# pyrefly: ignore [missing-import]
 from fastapi import FastAPI
 
-from app.routes.manuscript_analysis import router as manuscript_analysis_router
+from app.routes.manuscript_analysis import (
+    router as manuscript_analysis_router,
+)
+from app.routes.similarity_analysis import (
+    router as similarity_analysis_router,
+)
 
 
 app = FastAPI(
@@ -12,6 +16,7 @@ app = FastAPI(
 
 
 app.include_router(manuscript_analysis_router)
+app.include_router(similarity_analysis_router)
 
 
 @app.get("/health")
