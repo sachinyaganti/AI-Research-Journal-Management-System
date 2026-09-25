@@ -45,6 +45,18 @@ public class Manuscript {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
+    @Column(name = "file_name")
+    private String fileName;
+
+    @Column(name = "file_path")
+    private String filePath;
+
+    @Column(name = "file_type")
+    private String fileType;
+
+    @Column(name = "file_size")
+    private Long fileSize;
+
     @PrePersist
     protected void onCreate() {
 
