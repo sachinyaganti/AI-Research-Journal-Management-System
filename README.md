@@ -749,17 +749,3 @@ screenshots/manuscript-management.png
 </p>
 
 ---
-
-# 📄 License
-
-This project is developed for **academic and educational purposes**.
-
----
-
-<p align="center">
-
-### 💡 Building a smarter workflow for academic research management.
-
-**AI • Research • Automation • Full Stack Development**
-
-</p>
