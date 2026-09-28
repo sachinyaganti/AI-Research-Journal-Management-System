@@ -1,15 +1,17 @@
 # 📚 AI-Enabled Research Journal Management System
 
 <p align="center">
-  <img src="https://img.shields.io/badge/AI-Enabled-6C63FF?style=for-the-badge" />
-  <img src="https://img.shields.io/badge/React-Vite-61DAFB?style=for-the-badge&logo=react&logoColor=black" />
-  <img src="https://img.shields.io/badge/Java-Spring%20Boot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white" />
-  <img src="https://img.shields.io/badge/PostgreSQL-Database-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" />
-  <img src="https://img.shields.io/badge/Python-FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white" />
+  <img src="https://img.shields.io/badge/AI-Enabled-6C63FF?style=for-the-badge"/>
+  <img src="https://img.shields.io/badge/React-Vite-61DAFB?style=for-the-badge&logo=react&logoColor=black"/>
+  <img src="https://img.shields.io/badge/Tailwind%20CSS-38B2AC?style=for-the-badge&logo=tailwindcss&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Java%2021-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Spring%20Boot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white"/>
+  <img src="https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white"/>
+  <img src="https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white"/>
 </p>
 
 <p align="center">
-  <strong>A modern full-stack platform for managing the complete academic research publication workflow.</strong>
+  <strong>A full-stack, AI-enabled platform for managing the complete research journal publication lifecycle.</strong>
 </p>
 
 <p align="center">
@@ -17,262 +19,121 @@
   <a href="#-features">Features</a> •
   <a href="#-architecture">Architecture</a> •
   <a href="#-workflow">Workflow</a> •
-  <a href="#-setup">Setup</a> •
-  <a href="#-future-scope">Future Scope</a>
+  <a href="#-technology-stack">Tech Stack</a> •
+  <a href="#-installation">Installation</a>
 </p>
 
 ---
 
 ## 🌟 Overview
 
-The **AI-Enabled Research Journal Management System** is a full-stack web application designed to digitize and streamline the academic research publication process.
+The **AI-Enabled Research Journal Management System** is a full-stack web application developed to streamline and digitize the academic research publication process.
 
-The platform connects **Authors, Reviewers, and Editors** through a centralized workflow for:
+The system provides a centralized platform connecting:
 
-> 📝 Manuscript Submission → 👨‍⚖️ Reviewer Assignment → 🔍 Peer Review → 🔄 Revision → ✅ Editorial Decision → 📖 Publication
+* 👨‍🎓 **Authors**
+* 🔍 **Reviewers**
+* 👨‍💼 **Editors**
 
-The system combines:
+It supports the complete manuscript lifecycle, from **paper submission and reviewer assignment to review, revision, editorial decision, and publication**.
 
-* ⚛️ **React + Vite** for the frontend
-* ☕ **Java + Spring Boot** for backend services
-* 🐘 **PostgreSQL** for data management
-* 🐍 **Python + FastAPI** for AI services
-* 🔐 **JWT + Spring Security** for authentication and authorization
+The application follows a modular architecture consisting of a React frontend, Spring Boot REST backend, PostgreSQL database, and an independent Python FastAPI AI service.
 
 ---
 
-# 🎯 Problem Statement
+# 🎯 Project Objectives
 
-Traditional research-paper management can involve multiple disconnected tools such as:
+The system is designed to:
 
-* Email
-* Spreadsheets
-* Shared folders
-* Word/PDF documents
-* Manual reviewer assignment
-* Manual status tracking
-
-This can make it difficult to maintain a structured publication workflow.
-
-### 💡 Proposed Solution
-
-This project provides a centralized platform where each participant gets a dedicated workspace.
-
-```text
-                         RESEARCH JOURNAL PLATFORM
-
-        ┌─────────────┐
-        │   AUTHOR    │
-        └──────┬──────┘
-               │
-               │ Submit Manuscript
-               ▼
-        ┌─────────────┐
-        │   EDITOR    │
-        └──────┬──────┘
-               │
-               │ Assign Reviewer
-               ▼
-        ┌─────────────┐
-        │  REVIEWER   │
-        └──────┬──────┘
-               │
-               │ Submit Review
-               ▼
-        ┌─────────────┐
-        │   EDITOR    │
-        └──────┬──────┘
-               │
-          ┌────┴─────┐
-          ▼          ▼
-       ACCEPT     REVISION
-          │          │
-          ▼          ▼
-      PUBLISH    RESUBMIT
-```
+* Digitize research-paper submission and management.
+* Provide role-based dashboards and workflows.
+* Simplify reviewer assignment.
+* Manage manuscript reviews and revisions.
+* Track editorial decisions and decision history.
+* Maintain different versions of manuscripts.
+* Support publication workflows.
+* Provide AI-assisted research-paper analysis.
+* Provide an architecture for intelligent reviewer recommendations.
+* Secure application APIs using JWT authentication and role-based authorization.
 
 ---
 
-# ✨ Key Features
+# ✨ Features
 
-<table>
-<tr>
-<td width="33%" align="center">
+## 👨‍🎓 Author Module
 
-### 👨‍🎓 Author Portal
+Authors can:
 
-Submit and manage research manuscripts.
-
-* Manuscript submission
-* PDF/document upload
-* Submission tracking
-* Revision submission
-* Editorial decisions
-
-</td>
-
-<td width="33%" align="center">
-
-### 🔍 Reviewer Portal
-
-Review assigned manuscripts.
-
-* Assigned papers
-* Manuscript access
-* Review submission
-* Recommendations
-* Review tracking
-
-</td>
-
-<td width="33%" align="center">
-
-### 👨‍💼 Editor Portal
-
-Manage the complete editorial workflow.
-
-* Manuscript management
-* Reviewer assignment
-* Review monitoring
-* Editorial decisions
-* Publication workflow
-
-</td>
-</tr>
-
-<tr>
-<td width="33%" align="center">
-
-### 🤖 AI Services
-
-AI-ready architecture for intelligent research workflows.
-
-* Text analysis
-* Summarization
-* Keyword extraction
-* Similarity analysis
-
-</td>
-
-<td width="33%" align="center">
-
-### 🔐 Secure Authentication
-
-Role-based application security.
-
-* JWT authentication
-* BCrypt password hashing
-* Protected APIs
-* Role-based authorization
-
-</td>
-
-<td width="33%" align="center">
-
-### 📊 Centralized Management
-
-Everything in one platform.
-
-* Users
-* Manuscripts
-* Reviews
-* Revisions
-* Editorial decisions
-
-</td>
-</tr>
-</table>
+* Register and authenticate.
+* Submit research manuscripts.
+* View submitted manuscripts.
+* Track manuscript status.
+* View review and editorial outcomes.
+* Submit revised manuscript versions.
+* Track manuscript history.
+* View publication decisions.
 
 ---
 
-# 🧩 Technology Stack
+## 🔍 Reviewer Module
 
-## 🎨 Frontend
+Reviewers can:
 
-<p>
-<img src="https://img.shields.io/badge/React-20232A?style=flat-square&logo=react&logoColor=61DAFB"/>
-<img src="https://img.shields.io/badge/Vite-646CFF?style=flat-square&logo=vite&logoColor=white"/>
-<img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=flat-square&logo=javascript&logoColor=black"/>
-<img src="https://img.shields.io/badge/HTML5-E34F26?style=flat-square&logo=html5&logoColor=white"/>
-<img src="https://img.shields.io/badge/CSS3-1572B6?style=flat-square&logo=css3&logoColor=white"/>
-</p>
-
-## ⚙️ Backend
-
-<p>
-<img src="https://img.shields.io/badge/Java-21-ED8B00?style=flat-square&logo=openjdk&logoColor=white"/>
-<img src="https://img.shields.io/badge/Spring%20Boot-6DB33F?style=flat-square&logo=springboot&logoColor=white"/>
-<img src="https://img.shields.io/badge/Spring%20Security-6DB33F?style=flat-square&logo=springsecurity&logoColor=white"/>
-<img src="https://img.shields.io/badge/Maven-C71A36?style=flat-square&logo=apachemaven&logoColor=white"/>
-</p>
-
-## 🗄️ Database
-
-<p>
-<img src="https://img.shields.io/badge/PostgreSQL-4169E1?style=flat-square&logo=postgresql&logoColor=white"/>
-</p>
-
-## 🤖 AI Service
-
-<p>
-<img src="https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white"/>
-<img src="https://img.shields.io/badge/FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white"/>
-<img src="https://img.shields.io/badge/Uvicorn-499848?style=flat-square"/>
-</p>
-
-## 🛠️ Development
-
-<p>
-<img src="https://img.shields.io/badge/Git-F05032?style=flat-square&logo=git&logoColor=white"/>
-<img src="https://img.shields.io/badge/GitHub-181717?style=flat-square&logo=github&logoColor=white"/>
-<img src="https://img.shields.io/badge/Postman-FF6C37?style=flat-square&logo=postman&logoColor=white"/>
-</p>
+* Authenticate securely.
+* View assigned manuscripts.
+* Access assigned research papers.
+* Review manuscript submissions.
+* Submit review feedback.
+* Provide recommendations.
+* Track assigned review tasks.
 
 ---
 
-# 🏗️ System Architecture
+## 👨‍💼 Editor Module
 
-```text
-                         ┌──────────────────────┐
-                         │       USERS          │
-                         │                      │
-                         │ Author │ Reviewer    │
-                         │        │ Editor      │
-                         └──────────┬───────────┘
-                                    │
-                                    ▼
-                         ┌──────────────────────┐
-                         │   React + Vite       │
-                         │    Frontend UI       │
-                         └──────────┬───────────┘
-                                    │
-                              REST APIs
-                                    │
-                                    ▼
-                 ┌──────────────────────────────────┐
-                 │       Spring Boot Backend         │
-                 │                                  │
-                 │ Authentication                   │
-                 │ Manuscript Management             │
-                 │ Reviewer Assignment               │
-                 │ Review Management                 │
-                 │ Editorial Workflow                │
-                 └───────────────┬──────────────────┘
-                                 │
-                  ┌──────────────┴──────────────┐
-                  │                             │
-                  ▼                             ▼
-        ┌───────────────────┐        ┌───────────────────┐
-        │    PostgreSQL     │        │  Python FastAPI   │
-        │     Database      │        │    AI Service     │
-        └───────────────────┘        └───────────────────┘
-```
+Editors can:
+
+* View submitted manuscripts.
+* Manage manuscript workflows.
+* Assign reviewers.
+* Monitor reviewer assignments.
+* Review submitted reviewer feedback.
+* Make editorial decisions.
+* Track decision history.
+* Request manuscript revisions.
+* Accept or reject manuscripts.
+* Manage publication workflow.
 
 ---
 
-# 🔐 Security Architecture
+# 🤖 AI-Enabled Architecture
 
-The application uses **JWT-based authentication** with Spring Security.
+The system includes a dedicated **Python FastAPI AI service** that is separated from the main Spring Boot application.
+
+The architecture provides a foundation for intelligent research-paper processing, including:
+
+* 📄 Research-paper analysis
+* 📝 Text processing
+* 🔑 Keyword extraction
+* 📊 Paper analysis
+* 🔎 Similarity analysis
+* 👥 AI-assisted reviewer recommendation
+
+The AI service communicates independently with the backend, allowing AI capabilities to evolve without tightly coupling them to the core application.
+
+---
+
+# 🔐 Authentication & Security
+
+The application implements authentication and authorization using:
+
+* **Spring Security**
+* **JWT authentication**
+* **BCrypt password hashing**
+* **Role-based authorization**
+* Protected REST APIs
+
+### Authentication Flow
 
 ```text
 ┌──────────────┐
@@ -281,106 +142,258 @@ The application uses **JWT-based authentication** with Spring Security.
        │
        ▼
 ┌──────────────┐
-│ Login API    │
+│    Login     │
 └──────┬───────┘
        │
        ▼
-┌──────────────┐
-│ Authentication│
-│ + BCrypt     │
-└──────┬───────┘
-       │
-       ▼
-┌──────────────┐
-│ JWT Token    │
-└──────┬───────┘
-       │
-       ▼
-┌──────────────┐
-│ Protected API│
-└──────┬───────┘
-       │
-       ▼
-┌──────────────┐
-│ Role-Based   │
-│ Authorization│
-└──────────────┘
+┌────────────────────┐
+│ Spring Security    │
+│ Authentication     │
+└──────────┬─────────┘
+           │
+           ▼
+     ┌───────────┐
+     │ JWT Token │
+     └─────┬─────┘
+           │
+           ▼
+┌──────────────────────┐
+│ Protected REST APIs  │
+└──────────┬───────────┘
+           │
+           ▼
+┌──────────────────────┐
+│ Role-Based Access    │
+└──────────────────────┘
 ```
-
-### 🔑 Supported Roles
-
-|       Role       | Access                                                  |
-| :--------------: | ------------------------------------------------------- |
-| 👨‍🎓 **AUTHOR** | Submit manuscripts, upload revisions, track submissions |
-|  🔍 **REVIEWER** | Access assigned manuscripts and submit reviews          |
-| 👨‍💼 **EDITOR** | Manage manuscripts, reviewers, reviews and decisions    |
 
 ---
 
-# 🔄 Research Publication Workflow
+# 👥 User Roles
+
+|       Role       | Responsibilities                                               |
+| :--------------: | -------------------------------------------------------------- |
+| 👨‍🎓 **AUTHOR** | Submit manuscripts, manage submissions, submit revisions       |
+|  🔍 **REVIEWER** | Review assigned manuscripts and submit recommendations         |
+| 👨‍💼 **EDITOR** | Manage manuscripts, reviewers, reviews and editorial decisions |
+
+---
+
+# 🔄 Manuscript Workflow
+
+The core research publication workflow is:
 
 ```text
-                    ┌───────────────┐
-                    │    AUTHOR     │
-                    └───────┬───────┘
-                            │
-                     Submit Manuscript
-                            │
-                            ▼
-                    ┌───────────────┐
-                    │    EDITOR     │
-                    └───────┬───────┘
-                            │
-                     Assign Reviewer
-                            │
-                            ▼
-                    ┌───────────────┐
-                    │   REVIEWER    │
-                    └───────┬───────┘
-                            │
-                       Submit Review
-                            │
-                            ▼
-                    ┌───────────────┐
-                    │    EDITOR     │
-                    └───────┬───────┘
-                            │
-                  ┌─────────┴──────────┐
-                  │                    │
-                  ▼                    ▼
-             ACCEPTED              REVISION
-                  │                    │
-                  ▼                    ▼
-             PUBLISHED             RESUBMIT
-                                       │
-                                       ▼
-                                  NEW REVIEW
+                 ┌──────────────┐
+                 │    AUTHOR    │
+                 └──────┬───────┘
+                        │
+                  Submit Paper
+                        │
+                        ▼
+                 ┌──────────────┐
+                 │    EDITOR    │
+                 └──────┬───────┘
+                        │
+                 Assign Reviewer
+                        │
+                        ▼
+                 ┌──────────────┐
+                 │   REVIEWER   │
+                 └──────┬───────┘
+                        │
+                   Submit Review
+                        │
+                        ▼
+                 ┌──────────────┐
+                 │    EDITOR    │
+                 └──────┬───────┘
+                        │
+              ┌─────────┴─────────┐
+              │                   │
+              ▼                   ▼
+          ACCEPTED             REVISION
+              │                   │
+              ▼                   ▼
+          PUBLISHED          RESUBMISSION
+                                  │
+                                  ▼
+                              RE-REVIEW
 ```
 
-### 📌 Manuscript Lifecycle
+---
+
+# 📌 Manuscript Lifecycle
 
 ```text
 SUBMITTED
-    ↓
+    │
+    ▼
 UNDER_REVIEW
-    ↓
-┌───────────────┐
-│               │
-▼               ▼
-ACCEPTED     REVISION_REQUIRED
-│               │
-▼               ▼
-PUBLISHED     RESUBMITTED
-                │
-                ▼
-           UNDER_REVIEW
+    │
+    ├───────────────┐
+    │               │
+    ▼               ▼
+ACCEPTED       REVISION_REQUIRED
+    │               │
+    ▼               ▼
+PUBLISHED       RESUBMITTED
+                    │
+                    ▼
+                UNDER_REVIEW
 
-REJECTED ←──────┘
+REJECTED
 ```
 
 ---
 
-# 📁 Project Structure
+# 📜 Decision History
+
+The backend maintains manuscript decision information so that editorial outcomes can be tracked over time.
+
+Example:
+
+```text
+Manuscript
+    │
+    ├── Submitted
+    │
+    ├── Under Review
+    │
+    ├── Revision Required
+    │
+    ├── Resubmitted
+    │
+    ├── Accepted
+    │
+    └── Published
+```
+
+Editors can retrieve the decision history associated with a manuscript.
+
+---
+
+# 📄 Manuscript Version Management
+
+The system supports manuscript revisions and version tracking.
+
+```text
+Manuscript
+    │
+    ├── Version 1
+    │      └── Initial Submission
+    │
+    ├── Version 2
+    │      └── Revised Manuscript
+    │
+    ├── Version 3
+    │      └── Further Revision
+    │
+    └── Final Version
+```
+
+This allows revised submissions to remain associated with the original manuscript workflow.
+
+---
+
+# 🏗️ System Architecture
+
+```text
+                         ┌───────────────────────┐
+                         │         USERS         │
+                         │                       │
+                         │ Author │ Reviewer      │
+                         │        │ Editor        │
+                         └───────────┬───────────┘
+                                     │
+                                     ▼
+                         ┌───────────────────────┐
+                         │    React + Vite       │
+                         │   Tailwind CSS UI     │
+                         └───────────┬───────────┘
+                                     │
+                                  REST API
+                                     │
+                                     ▼
+                  ┌────────────────────────────────┐
+                  │       Spring Boot Backend       │
+                  │                                │
+                  │ Authentication                 │
+                  │ JWT Security                   │
+                  │ Manuscript Management          │
+                  │ Reviewer Assignment            │
+                  │ Review Management              │
+                  │ Revision Management             │
+                  │ Editorial Decisions            │
+                  │ Decision History               │
+                  │ Publication Workflow           │
+                  └───────────────┬────────────────┘
+                                  │
+                    ┌─────────────┴─────────────┐
+                    │                           │
+                    ▼                           ▼
+          ┌────────────────────┐      ┌────────────────────┐
+          │    PostgreSQL      │      │   Python FastAPI   │
+          │      Database      │      │    AI Service      │
+          └────────────────────┘      └────────────────────┘
+```
+
+---
+
+# 🧩 Technology Stack
+
+## 🎨 Frontend
+
+| Technology   | Purpose               |
+| ------------ | --------------------- |
+| React        | User interface        |
+| Vite         | Frontend build tool   |
+| Tailwind CSS | UI styling            |
+| JavaScript   | Application logic     |
+| REST APIs    | Backend communication |
+
+---
+
+## ⚙️ Backend
+
+| Technology      | Purpose                        |
+| --------------- | ------------------------------ |
+| Java 21         | Backend programming            |
+| Spring Boot     | REST API development           |
+| Spring Security | Authentication & authorization |
+| JWT             | Token-based authentication     |
+| BCrypt          | Password hashing               |
+| Maven           | Dependency management          |
+
+---
+
+## 🗄️ Database
+
+| Technology | Purpose                 |
+| ---------- | ----------------------- |
+| PostgreSQL | Persistent data storage |
+| SQL        | Database operations     |
+
+Database:
+
+```text
+research_journal_db
+```
+
+---
+
+## 🤖 AI Service
+
+| Technology        | Purpose                   |
+| ----------------- | ------------------------- |
+| Python            | AI service development    |
+| FastAPI           | AI REST service           |
+| Uvicorn           | ASGI server               |
+| NLP/AI components | Research-paper processing |
+
+---
+
+# 📂 Project Structure
 
 ```text
 AI-Research-Journal-Management-System/
@@ -430,27 +443,29 @@ AI-Research-Journal-Management-System/
 
 ---
 
-# ⚙️ Getting Started
+# ⚙️ Installation
 
-## 1️⃣ Clone Repository
+## 1. Clone Repository
 
 ```bash
 git clone https://github.com/sachinyaganti/AI-Research-Journal-Management-System.git
+```
 
+```bash
 cd AI-Research-Journal-Management-System
 ```
 
 ---
 
-## 2️⃣ Database Setup
+# 2. PostgreSQL Setup
 
-Create the PostgreSQL database:
+Create the database:
 
 ```sql
 CREATE DATABASE research_journal_db;
 ```
 
-Configure:
+Configure the database in:
 
 ```text
 backend/src/main/resources/application.properties
@@ -464,11 +479,11 @@ spring.datasource.username=YOUR_USERNAME
 spring.datasource.password=YOUR_PASSWORD
 ```
 
-> ⚠️ Never commit database passwords, API keys, JWT secrets, or other credentials.
+> ⚠️ Keep credentials outside the repository.
 
 ---
 
-## 3️⃣ Start Backend
+# 3. Run Spring Boot Backend
 
 ```bash
 cd backend
@@ -494,13 +509,23 @@ http://localhost:8080
 
 ---
 
-## 4️⃣ Start Frontend
+# 4. Run React Frontend
 
 Open a new terminal:
 
 ```bash
 cd frontend
+```
+
+Install dependencies:
+
+```bash
 npm install
+```
+
+Run:
+
+```bash
 npm run dev
 ```
 
@@ -512,13 +537,15 @@ http://localhost:5173
 
 ---
 
-## 5️⃣ Start AI Service
+# 5. Run AI Service
+
+Open another terminal:
 
 ```bash
 cd ai-service
 ```
 
-Create virtual environment:
+Create a virtual environment:
 
 ```bash
 python -m venv venv
@@ -536,7 +563,7 @@ Install dependencies:
 pip install -r requirements.txt
 ```
 
-Start FastAPI:
+Run FastAPI:
 
 ```bash
 uvicorn main:app --reload
@@ -546,30 +573,31 @@ uvicorn main:app --reload
 
 # 🧪 Testing
 
-The system can be tested through:
+The system supports testing of:
 
-### 🔹 Frontend Testing
+### Frontend
 
-* Login
-* Registration
-* Dashboard navigation
-* Manuscript submission
-* PDF upload
-* Reviewer workflow
-* Editorial workflow
-
-### 🔹 Backend Testing
-
-* REST APIs
 * Authentication
-* Authorization
-* Database operations
-* Reviewer assignment
+* Role-based dashboards
+* Manuscript submission
 * Manuscript management
+* Reviewer workflows
+* Editorial workflows
+* Revision workflows
 
-### 🔹 API Testing
+### Backend
 
-Use **Postman** or PowerShell.
+* Authentication APIs
+* JWT authorization
+* Manuscript APIs
+* Reviewer assignment APIs
+* Review APIs
+* Editorial decision APIs
+* Decision-history APIs
+
+### API Testing
+
+REST APIs can be tested using Postman or PowerShell.
 
 Example:
 
@@ -582,151 +610,167 @@ Invoke-RestMethod `
 
 ---
 
-# 🤖 AI Integration
+# 🛡️ Security Practices
 
-The AI architecture is designed as an independent microservice.
+The project follows security practices including:
+
+* JWT-based authentication
+* BCrypt password hashing
+* Role-based authorization
+* Protected API endpoints
+* Server-side authorization
+* Environment-based secret management
+* Git exclusion of sensitive credentials
+
+Never commit:
 
 ```text
-                    Spring Boot
-                        │
-                        │ REST Request
-                        ▼
-                ┌───────────────┐
-                │   FastAPI     │
-                │   AI Service  │
-                └───────┬───────┘
-                        │
-                        ▼
-                ┌───────────────┐
-                │ AI / NLP      │
-                │ Processing    │
-                └───────┬───────┘
-                        │
-                        ▼
-                   AI Response
-                        │
-                        ▼
-                    Frontend
+.env
+API keys
+JWT secrets
+Database passwords
+Private credentials
 ```
 
-This architecture makes it easier to add new AI capabilities without tightly coupling them to the main backend.
+---
+
+# 📊 Current Implementation
+
+| Module                        |       Status      |
+| :---------------------------- | :---------------: |
+| 🎨 React + Vite Frontend      |   ✅ Implemented   |
+| 💨 Tailwind CSS UI            |   ✅ Implemented   |
+| ☕ Spring Boot Backend         |   ✅ Implemented   |
+| 🗄️ PostgreSQL Database       |   ✅ Implemented   |
+| 🔐 JWT Authentication         |   ✅ Implemented   |
+| 🛡️ Spring Security           |   ✅ Implemented   |
+| 🔑 BCrypt Password Hashing    |   ✅ Implemented   |
+| 👥 Role-Based Authorization   |   ✅ Implemented   |
+| 📝 Manuscript Management      |   ✅ Implemented   |
+| 👨‍⚖️ Reviewer Assignment     |   ✅ Implemented   |
+| 🔍 Review Management          |   ✅ Implemented   |
+| 🔄 Manuscript Revisions       |   ✅ Implemented   |
+| 📜 Decision History           |   ✅ Implemented   |
+| ✅ Editorial Decisions         |   ✅ Implemented   |
+| 📖 Publication Workflow       |   ✅ Implemented   |
+| 🤖 FastAPI AI Service         | 🚧 In Development |
+| 🧠 AI Paper Analysis          | 🚧 In Development |
+| 👥 AI Reviewer Recommendation | 🚧 In Development |
+| ☁️ Cloud Deployment           |     🚧 Planned    |
 
 ---
 
-# 📊 Development Status
+# 🚀 Future Scope
 
-| Module                    | Status |
-| :------------------------ | :----: |
-| 🎨 React Frontend         |    ✅   |
-| ⚙️ Spring Boot Backend    |    ✅   |
-| 🗄️ PostgreSQL            |    ✅   |
-| 🔐 Authentication         |    ✅   |
-| 🛡️ JWT Security          |    ✅   |
-| 👥 Role-Based Access      |    ✅   |
-| 📝 Manuscript Management  |    ✅   |
-| 👨‍⚖️ Reviewer Assignment |    ✅   |
-| 🔍 Review Workflow        |   🚧   |
-| 🔄 Revision Workflow      |   🚧   |
-| 📄 PDF Management         |   🚧   |
-| 🤖 AI Service             |   🚧   |
-| 🧠 AI Analysis            |   🚧   |
-| ☁️ Cloud Deployment       |   🚧   |
-
----
-
-# 🔮 Future Scope
-
-### 🤖 Intelligent Research Assistance
+## 🤖 AI Enhancements
 
 * AI-based manuscript summarization
-* Keyword extraction
+* Automated keyword extraction
 * Semantic similarity analysis
-* Automated reviewer recommendations
-* AI-assisted manuscript analysis
+* AI-assisted reviewer recommendation
+* Intelligent manuscript classification
+* Research-paper quality analysis
 
-### 📊 Analytics
+## 📊 Analytics
 
-* Editorial analytics dashboard
-* Reviewer performance analytics
+* Editorial analytics
+* Reviewer activity analytics
+* Manuscript processing statistics
 * Publication statistics
-* Manuscript processing metrics
+* Workflow performance dashboards
 
-### ☁️ DevOps & Deployment
+## ☁️ DevOps
 
 * Docker containerization
-* CI/CD with GitHub Actions
+* GitHub Actions CI/CD
 * Cloud deployment
 * Kubernetes orchestration
-* Automated testing pipelines
+* Automated integration testing
 
-### 📧 Notifications
+## 📧 Notifications
 
 * Email notifications
-* Reviewer assignment notifications
+* Reviewer assignment alerts
 * Revision reminders
 * Editorial decision notifications
+* Publication notifications
 
 ---
 
-# 🖥️ Screenshots
+# 🖥️ Application Screenshots
 
-> Add application screenshots here as the UI evolves.
+Add screenshots to the repository under:
+
+```text
+screenshots/
+```
+
+Recommended screenshots:
+
+```text
+screenshots/
+├── login.png
+├── registration.png
+├── author-dashboard.png
+├── manuscript-submission.png
+├── reviewer-dashboard.png
+├── review-page.png
+├── editor-dashboard.png
+├── reviewer-assignment.png
+├── decision-history.png
+└── publication-workflow.png
+```
+
+Example:
 
 ### 🔐 Login
 
-```text
-screenshots/login.png
-```
+![Login](screenshots/login.png)
 
 ### 👨‍🎓 Author Dashboard
 
-```text
-screenshots/author-dashboard.png
-```
+![Author Dashboard](screenshots/author-dashboard.png)
 
 ### 🔍 Reviewer Dashboard
 
-```text
-screenshots/reviewer-dashboard.png
-```
+![Reviewer Dashboard](screenshots/reviewer-dashboard.png)
 
 ### 👨‍💼 Editor Dashboard
 
-```text
-screenshots/editor-dashboard.png
-```
-
-### 📝 Manuscript Management
-
-```text
-screenshots/manuscript-management.png
-```
+![Editor Dashboard](screenshots/editor-dashboard.png)
 
 ---
 
-# 🚀 Project Highlights
+# 📈 Project Highlights
 
-<table>
-<tr>
-<td align="center">⚛️<br><strong>Modern Frontend</strong><br>React + Vite</td>
-<td align="center">☕<br><strong>Robust Backend</strong><br>Spring Boot</td>
-<td align="center">🐘<br><strong>Reliable Storage</strong><br>PostgreSQL</td>
-</tr>
-<tr>
-<td align="center">🤖<br><strong>AI Ready</strong><br>FastAPI</td>
-<td align="center">🔐<br><strong>Secure</strong><br>JWT + Spring Security</td>
-<td align="center">📄<br><strong>Document Workflow</strong><br>Manuscript Management</td>
-</tr>
-</table>
+<p align="center">
+
+|                          |                                                         |
+| :----------------------: | :-----------------------------------------------------: |
+|     ⚛️ **Modern UI**     |               React + Vite + Tailwind CSS               |
+|   ☕ **Robust Backend**   |                  Java 21 + Spring Boot                  |
+|       🔐 **Secure**      |              JWT + Spring Security + BCrypt             |
+|   🗄️ **Reliable Data**  |                        PostgreSQL                       |
+| 📄 **Research Workflow** | Submission → Review → Revision → Decision → Publication |
+|      🤖 **AI Ready**     |               Dedicated FastAPI AI Service              |
+|     👥 **Role Based**    |                Author • Reviewer • Editor               |
+
+</p>
+
+---
+
+# 🎓 Academic Project
+
+This project was developed as a **team-based academic full-stack project** with the objective of applying software engineering, database management, web development, security, and AI concepts to a real-world research publication workflow.
 
 ---
 
 # 👨‍💻 Developer
 
-### Yaganti Deepak Sachin Sai Chowdary
+## Yaganti Deepak Sachin Sai Chowdary
 
-🎓 **B.Tech — Computer Science & Engineering**
-🏫 **KLEF Deemed to be University**
+**B.Tech — Computer Science and Engineering**
+**KLEF Deemed to be University**
 
 <p>
 <a href="https://github.com/sachinyaganti">
@@ -736,16 +780,30 @@ screenshots/manuscript-management.png
 
 ---
 
-# 📌 Repository
+# 🔗 Repository
 
 <p align="center">
 
 <a href="https://github.com/sachinyaganti/AI-Research-Journal-Management-System">
 
-<img src="https://img.shields.io/badge/⭐%20View%20Project-GitHub-181717?style=for-the-badge&logo=github"/>
+<img src="https://img.shields.io/badge/⭐%20View%20Repository-GitHub-181717?style=for-the-badge&logo=github"/>
 
 </a>
 
 </p>
 
 ---
+
+# 📄 License
+
+This project is developed for **academic and educational purposes**.
+
+---
+
+<p align="center">
+
+### 📚 AI • Research • Automation • Full-Stack Development
+
+**Building a smarter digital workflow for academic publishing.**
+
+</p>
