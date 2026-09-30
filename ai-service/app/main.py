@@ -1,5 +1,9 @@
 from fastapi import FastAPI
 
+from app.routes.ai_content_analysis import (
+    router as ai_content_analysis_router,
+)
+
 from app.routes.manuscript_analysis import (
     router as manuscript_analysis_router,
 )
@@ -19,6 +23,8 @@ app = FastAPI(
     version="1.0.0",
 )
 
+
+app.include_router(ai_content_analysis_router)
 
 app.include_router(manuscript_analysis_router)
 
