@@ -1,5 +1,6 @@
 package com.researchjournal.service;
 
+import com.researchjournal.client.PdfExtractionClient;
 import com.researchjournal.client.SimilarityAnalysisClient;
 import com.researchjournal.entity.Manuscript;
 import com.researchjournal.entity.SimilarityAnalysis;
@@ -15,15 +16,18 @@ import java.util.List;
 @Service
 public class SimilarityAnalysisService {
 
+        private final PdfExtractionClient pdfExtractionClient;
         private final ManuscriptRepository manuscriptRepository;
         private final SimilarityAnalysisRepository similarityAnalysisRepository;
         private final SimilarityAnalysisClient similarityAnalysisClient;
 
         public SimilarityAnalysisService(
+                        PdfExtractionClient pdfExtractionClient,
                         ManuscriptRepository manuscriptRepository,
                         SimilarityAnalysisRepository similarityAnalysisRepository,
                         SimilarityAnalysisClient similarityAnalysisClient) {
 
+                this.pdfExtractionClient = pdfExtractionClient;
                 this.manuscriptRepository = manuscriptRepository;
                 this.similarityAnalysisRepository = similarityAnalysisRepository;
                 this.similarityAnalysisClient = similarityAnalysisClient;
@@ -55,16 +59,44 @@ public class SimilarityAnalysisService {
                                 .toList();
 
                 List<SimilarityAnalysisClient.SimilarityCandidate> candidates = otherManuscripts.stream()
-                                .map(other -> new SimilarityAnalysisClient.SimilarityCandidate(
-                                                other.getId(),
-                                                other.getTitle(),
-                                                other.getAbstractText()))
+                                .map(candidate -> new SimilarityAnalysisClient.SimilarityCandidate(
+                                                candidate.getId(),
+                                                candidate.getTitle(),
+                                                candidate.getAbstractText(),
+                                                ""))
                                 .toList();
+                String fullText = "";
 
+                if (manuscript.getFilePath() != null) {
+
+                        try {
+
+                                byte[] pdfBytes = java.nio.file.Files.readAllBytes(
+                                                java.nio.file.Paths.get(
+                                                                manuscript.getFilePath()));
+
+                                PdfExtractionClient.PdfExtractionResponse pdfResponse = pdfExtractionClient.extractText(
+                                                pdfBytes,
+                                                manuscript.getFileName());
+
+                                if (pdfResponse != null
+                                                && pdfResponse.getExtractedText() != null) {
+
+                                        fullText = pdfResponse.getExtractedText();
+                                }
+
+                        } catch (Exception e) {
+
+                                throw new RuntimeException(
+                                                "Unable to extract text from manuscript PDF",
+                                                e);
+                        }
+                }
                 SimilarityAnalysisClient.SimilarityAnalysisRequest request = new SimilarityAnalysisClient.SimilarityAnalysisRequest(
                                 manuscript.getId(),
                                 manuscript.getTitle(),
                                 manuscript.getAbstractText(),
+                                fullText,
                                 candidates);
 
                 SimilarityAnalysisClient.SimilarityAnalysisResponse response = similarityAnalysisClient

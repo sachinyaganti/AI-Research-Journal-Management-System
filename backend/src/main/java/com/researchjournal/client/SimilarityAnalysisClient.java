@@ -16,7 +16,7 @@ public class SimilarityAnalysisClient {
     public SimilarityAnalysisClient() {
         this.restClient = RestClient
                 .builder()
-                .baseUrl("http://localhost:8000")
+                .baseUrl("http://localhost:8001")
                 .build();
     }
 
@@ -43,6 +43,9 @@ public class SimilarityAnalysisClient {
         @JsonProperty("abstractText")
         private String abstractText;
 
+        @JsonProperty("full_text")
+        private String fullText;
+
         private List<SimilarityCandidate> candidates;
 
         public SimilarityAnalysisRequest() {
@@ -52,11 +55,13 @@ public class SimilarityAnalysisClient {
                 Long manuscriptId,
                 String title,
                 String abstractText,
+                String fullText,
                 List<SimilarityCandidate> candidates) {
 
             this.manuscriptId = manuscriptId;
             this.title = title;
             this.abstractText = abstractText;
+            this.fullText = fullText;
             this.candidates = candidates;
         }
     }
@@ -73,17 +78,22 @@ public class SimilarityAnalysisClient {
         @JsonProperty("abstractText")
         private String abstractText;
 
+        @JsonProperty("full_text")
+        private String fullText;
+
         public SimilarityCandidate() {
         }
 
         public SimilarityCandidate(
                 Long manuscriptId,
                 String title,
-                String abstractText) {
+                String abstractText,
+                String fullText) {
 
             this.manuscriptId = manuscriptId;
             this.title = title;
             this.abstractText = abstractText;
+            this.fullText = fullText;
         }
     }
 

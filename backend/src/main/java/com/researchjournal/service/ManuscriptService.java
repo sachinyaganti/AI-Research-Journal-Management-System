@@ -265,6 +265,9 @@ public class ManuscriptService {
                                 author.getFullName(),
                                 author.getEmail(),
                                 manuscript.getCreatedAt(),
-                                manuscript.getUpdatedAt());
+                                manuscript.getUpdatedAt(),
+                                manuscript.getFileName(),
+                                manuscript.getFileType(),
+                                manuscript.getFileSize());
         }
 }

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
+import "./AuthorDashboard.css";
 
 const API_BASE_URL = "http://localhost:8080";
 
@@ -9,33 +10,55 @@ function AuthorDashboard() {
     const { token, user, logout } = useAuth();
 
     // =========================================================
-    // STATE
+    // MANUSCRIPTS
     // =========================================================
 
     const [manuscripts, setManuscripts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
-    // AI Analysis
+    // =========================================================
+    // AI ANALYSIS
+    // =========================================================
+
     const [analysisResults, setAnalysisResults] = useState({});
     const [analyzingId, setAnalyzingId] = useState(null);
 
-    // Similarity
+    // =========================================================
+    // SIMILARITY
+    // =========================================================
+
     const [similarityResults, setSimilarityResults] = useState({});
     const [checkingSimilarityId, setCheckingSimilarityId] =
         useState(null);
 
-    // PDF Management
-    const [uploadingFileId, setUploadingFileId] = useState(null);
-    const [fileUploadError, setFileUploadError] = useState("");
+    // =========================================================
+    // PDF UPLOAD
+    // =========================================================
+
+    const [selectedFile, setSelectedFile] = useState(null);
     const [selectedManuscriptId, setSelectedManuscriptId] =
         useState("");
+
+    const [uploadingFile, setUploadingFile] = useState(false);
+    const [fileUploadError, setFileUploadError] = useState("");
+    const [fileUploadSuccess, setFileUploadSuccess] = useState("");
+
+    // =========================================================
+    // PDF VIEW
+    // =========================================================
+
+    const [openingPdfId, setOpeningPdfId] = useState(null);
 
     // =========================================================
     // FETCH MANUSCRIPTS
     // =========================================================
 
     const fetchManuscripts = async () => {
+        if (!token) {
+            return;
+        }
+
         setLoading(true);
         setError("");
 
@@ -50,21 +73,31 @@ function AuthorDashboard() {
                 }
             );
 
-            if (!response.ok) {
-                const data = await response
-                    .json()
-                    .catch(() => ({}));
+            if (response.status === 401) {
+                logout();
+                return;
+            }
 
+            const data = await response
+                .json()
+                .catch(() => []);
+
+            if (!response.ok) {
                 throw new Error(
                     data.message ||
                     "Failed to load manuscripts"
                 );
             }
 
-            const data = await response.json();
-
-            setManuscripts(data);
+            setManuscripts(
+                Array.isArray(data) ? data : []
+            );
         } catch (err) {
+            console.error(
+                "Failed to fetch manuscripts:",
+                err
+            );
+
             setError(
                 err.message ||
                 "Failed to load manuscripts"
@@ -75,128 +108,215 @@ function AuthorDashboard() {
     };
 
     // =========================================================
-    // FETCH SAVED AI ANALYSIS
-    // =========================================================
-
-    const fetchAnalysis = async (manuscriptId) => {
-        try {
-            const response = await fetch(
-                `${API_BASE_URL}/api/manuscripts/${manuscriptId}/analysis`,
-                {
-                    method: "GET",
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
-            );
-
-            if (response.status === 404) {
-                return;
-            }
-
-            if (!response.ok) {
-                console.error(
-                    `Failed to load AI analysis for manuscript ${manuscriptId}: ${response.status}`
-                );
-
-                return;
-            }
-
-            const data = await response.json();
-
-            const normalizedData = {
-                ...data,
-
-                abstract_word_count:
-                    data.abstract_word_count ??
-                    data.abstractWordCount ??
-                    0,
-
-                keyword_count:
-                    data.keyword_count ??
-                    data.keywordCount ??
-                    0,
-
-                abstract_quality:
-                    data.abstract_quality ??
-                    data.abstractQuality ??
-                    "",
-
-                methodology_quality:
-                    data.methodology_quality ??
-                    data.methodologyQuality ??
-                    "",
-
-                results_quality:
-                    data.results_quality ??
-                    data.resultsQuality ??
-                    "",
-
-                conclusion_quality:
-                    data.conclusion_quality ??
-                    data.conclusionQuality ??
-                    "",
-
-                writing_quality:
-                    data.writing_quality ??
-                    data.writingQuality ??
-                    "",
-
-                missing_sections:
-                    data.missing_sections ??
-                    data.missingSections ??
-                    [],
-
-                writing_issues:
-                    data.writing_issues ??
-                    data.writingIssues ??
-                    [],
-
-                suggestions:
-                    data.suggestions ?? [],
-            };
-
-            setAnalysisResults((previous) => ({
-                ...previous,
-                [manuscriptId]: normalizedData,
-            }));
-        } catch (err) {
-            console.error(
-                "Failed to load saved AI analysis:",
-                err
-            );
-        }
-    };
-
-    // =========================================================
     // INITIAL LOAD
+    // IMPORTANT:
+    // NO AI ANALYSIS IS LOADED HERE
     // =========================================================
 
     useEffect(() => {
         if (!token) {
+            navigate("/login");
             return;
         }
 
-        const loadDashboard = async () => {
-            await fetchManuscripts();
-        };
-
-        loadDashboard();
+        fetchManuscripts();
     }, [token]);
 
     // =========================================================
-    // LOAD SAVED ANALYSIS WHEN MANUSCRIPTS ARE AVAILABLE
+    // HANDLE PDF FILE SELECTION
     // =========================================================
 
-    useEffect(() => {
-        if (!token || manuscripts.length === 0) {
+    const handleFileSelection = (file) => {
+        setFileUploadError("");
+        setFileUploadSuccess("");
+
+        if (!file) {
+            setSelectedFile(null);
             return;
         }
 
-        manuscripts.forEach((manuscript) => {
-            fetchAnalysis(manuscript.id);
-        });
-    }, [manuscripts, token]);
+        // PDF validation
+        if (
+            file.type !== "application/pdf" &&
+            !file.name
+                .toLowerCase()
+                .endsWith(".pdf")
+        ) {
+            setSelectedFile(null);
+
+            setFileUploadError(
+                "Only PDF files are allowed."
+            );
+
+            return;
+        }
+
+        // 10 MB limit
+        const maxSize = 10 * 1024 * 1024;
+
+        if (file.size > maxSize) {
+            setSelectedFile(null);
+
+            setFileUploadError(
+                "PDF file size must be 10 MB or less."
+            );
+
+            return;
+        }
+
+        setSelectedFile(file);
+    };
+
+    // =========================================================
+    // UPLOAD RESEARCH PAPER PDF
+    // =========================================================
+
+    const handleFileUpload = async () => {
+        setFileUploadError("");
+        setFileUploadSuccess("");
+
+        if (!selectedFile) {
+            setFileUploadError(
+                "Please select a research paper PDF."
+            );
+
+            return;
+        }
+
+        if (!selectedManuscriptId) {
+            setFileUploadError(
+                "Please select the manuscript to which this PDF belongs."
+            );
+
+            return;
+        }
+
+        setUploadingFile(true);
+
+        try {
+            const formData = new FormData();
+
+            formData.append(
+                "file",
+                selectedFile
+            );
+
+            const response = await fetch(
+                `${API_BASE_URL}/api/manuscripts/${selectedManuscriptId}/file`,
+                {
+                    method: "POST",
+                    headers: {
+                        Authorization:
+                            `Bearer ${token}`,
+                    },
+                    body: formData,
+                }
+            );
+
+            const data = await response
+                .json()
+                .catch(() => ({}));
+
+            if (response.status === 401) {
+                logout();
+                return;
+            }
+
+            if (!response.ok) {
+                throw new Error(
+                    data.message ||
+                    "Failed to upload research paper"
+                );
+            }
+
+            setSelectedFile(null);
+
+            setFileUploadSuccess(
+                "Research paper uploaded successfully."
+            );
+
+            await fetchManuscripts();
+        } catch (err) {
+            console.error(
+                "PDF upload error:",
+                err
+            );
+
+            setFileUploadError(
+                err.message ||
+                "Failed to upload research paper"
+            );
+        } finally {
+            setUploadingFile(false);
+        }
+    };
+
+    // =========================================================
+    // VIEW PDF
+    // =========================================================
+
+    const handleViewPdf = async (
+        manuscriptId
+    ) => {
+        setOpeningPdfId(manuscriptId);
+        setError("");
+
+        try {
+            const response = await fetch(
+                `${API_BASE_URL}/api/manuscripts/${manuscriptId}/file`,
+                {
+                    method: "GET",
+                    headers: {
+                        Authorization:
+                            `Bearer ${token}`,
+                    },
+                }
+            );
+
+            if (response.status === 401) {
+                logout();
+                return;
+            }
+
+            if (!response.ok) {
+                throw new Error(
+                    "Unable to open the research paper PDF."
+                );
+            }
+
+            const blob =
+                await response.blob();
+
+            const pdfUrl =
+                window.URL.createObjectURL(
+                    blob
+                );
+
+            window.open(
+                pdfUrl,
+                "_blank",
+                "noopener,noreferrer"
+            );
+
+            setTimeout(() => {
+                window.URL.revokeObjectURL(
+                    pdfUrl
+                );
+            }, 60000);
+        } catch (err) {
+            console.error(
+                "PDF viewing error:",
+                err
+            );
+
+            setError(
+                err.message ||
+                "Unable to open PDF"
+            );
+        } finally {
+            setOpeningPdfId(null);
+        }
+    };
 
     // =========================================================
     // SUBMIT MANUSCRIPT
@@ -211,7 +331,8 @@ function AuthorDashboard() {
                 {
                     method: "POST",
                     headers: {
-                        Authorization: `Bearer ${token}`,
+                        Authorization:
+                            `Bearer ${token}`,
                     },
                 }
             );
@@ -241,9 +362,10 @@ function AuthorDashboard() {
     // =========================================================
 
     const handleDelete = async (id) => {
-        const confirmed = window.confirm(
-            "Are you sure you want to delete this draft?"
-        );
+        const confirmed =
+            window.confirm(
+                "Are you sure you want to delete this draft?"
+            );
 
         if (!confirmed) {
             return;
@@ -257,16 +379,17 @@ function AuthorDashboard() {
                 {
                     method: "DELETE",
                     headers: {
-                        Authorization: `Bearer ${token}`,
+                        Authorization:
+                            `Bearer ${token}`,
                     },
                 }
             );
 
-            if (!response.ok) {
-                const data = await response
-                    .json()
-                    .catch(() => ({}));
+            const data = await response
+                .json()
+                .catch(() => ({}));
 
+            if (!response.ok) {
                 throw new Error(
                     data.message ||
                     "Failed to delete manuscript"
@@ -274,10 +397,12 @@ function AuthorDashboard() {
             }
 
             if (
-                String(selectedManuscriptId) ===
-                String(id)
+                String(
+                    selectedManuscriptId
+                ) === String(id)
             ) {
                 setSelectedManuscriptId("");
+                setSelectedFile(null);
             }
 
             await fetchManuscripts();
@@ -291,9 +416,13 @@ function AuthorDashboard() {
 
     // =========================================================
     // AI ANALYSIS
+    // IMPORTANT:
+    // THIS FUNCTION RUNS ONLY WHEN THE BUTTON IS PRESSED
     // =========================================================
 
-    const handleAnalyze = async (manuscriptId) => {
+    const handleAnalyze = async (
+        manuscriptId
+    ) => {
         setError("");
         setAnalyzingId(manuscriptId);
 
@@ -303,81 +432,9 @@ function AuthorDashboard() {
                 {
                     method: "POST",
                     headers: {
-                        Authorization: `Bearer ${token}`,
+                        Authorization:
+                            `Bearer ${token}`,
                     },
-                }
-            );
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(
-                    data.message ||
-                    "Failed to analyze manuscript"
-                );
-            }
-
-            setAnalysisResults((previous) => ({
-                ...previous,
-                [manuscriptId]: data,
-            }));
-        } catch (err) {
-            setError(
-                err.message ||
-                "Failed to analyze manuscript"
-            );
-        } finally {
-            setAnalyzingId(null);
-        }
-    };
-
-    // =========================================================
-    // PDF FILE UPLOAD
-    // =========================================================
-
-    const handleFileUpload = async (
-        manuscriptId,
-        file
-    ) => {
-        if (!file) {
-            return;
-        }
-
-        setFileUploadError("");
-
-        // Only PDF
-        if (file.type !== "application/pdf") {
-            setFileUploadError(
-                "Only PDF files are allowed."
-            );
-            return;
-        }
-
-        // Maximum file size = 10 MB
-        const maxSize = 10 * 1024 * 1024;
-
-        if (file.size > maxSize) {
-            setFileUploadError(
-                "PDF file size must be less than or equal to 10 MB."
-            );
-            return;
-        }
-
-        setUploadingFileId(manuscriptId);
-
-        try {
-            const formData = new FormData();
-
-            formData.append("file", file);
-
-            const response = await fetch(
-                `${API_BASE_URL}/api/manuscripts/${manuscriptId}/file`,
-                {
-                    method: "POST",
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                    body: formData,
                 }
             );
 
@@ -388,48 +445,112 @@ function AuthorDashboard() {
             if (!response.ok) {
                 throw new Error(
                     data.message ||
-                    "Failed to upload PDF"
+                    "Failed to analyze manuscript"
                 );
             }
 
-            // Update the selected manuscript
-            // immediately in the frontend
-            setManuscripts((previous) =>
-                previous.map((manuscript) =>
-                    manuscript.id === manuscriptId
-                        ? {
-                            ...manuscript,
-                            fileName:
-                                data.fileName,
-                            fileType:
-                                data.fileType,
-                            fileSize:
-                                data.fileSize,
-                        }
-                        : manuscript
-                )
+            // Save result only after button click
+            setAnalysisResults(
+                (previous) => ({
+                    ...previous,
+                    [manuscriptId]:
+                        normalizeAnalysis(
+                            data
+                        ),
+                })
+            );
+        } catch (err) {
+            console.error(
+                "AI analysis error:",
+                err
             );
 
-            setFileUploadError("");
-        } catch (err) {
-            setFileUploadError(
+            setError(
                 err.message ||
-                "Failed to upload PDF"
+                "Failed to analyze manuscript"
             );
         } finally {
-            setUploadingFileId(null);
+            setAnalyzingId(null);
         }
     };
 
     // =========================================================
-    // CHECK SIMILARITY
+    // NORMALIZE AI RESPONSE
+    // Supports Java camelCase + Python snake_case
+    // =========================================================
+
+    const normalizeAnalysis = (data) => {
+        return {
+            ...data,
+
+            abstractWordCount:
+                data.abstractWordCount ??
+                data.abstract_word_count ??
+                0,
+
+            keywordCount:
+                data.keywordCount ??
+                data.keyword_count ??
+                0,
+
+            abstractQuality:
+                data.abstractQuality ??
+                data.abstract_quality ??
+                "",
+
+            methodologyQuality:
+                data.methodologyQuality ??
+                data.methodology_quality ??
+                "",
+
+            resultsQuality:
+                data.resultsQuality ??
+                data.results_quality ??
+                "",
+
+            conclusionQuality:
+                data.conclusionQuality ??
+                data.conclusion_quality ??
+                "",
+
+            writingQuality:
+                data.writingQuality ??
+                data.writing_quality ??
+                "",
+
+            missingSections:
+                data.missingSections ??
+                data.missing_sections ??
+                [],
+
+            writingIssues:
+                data.writingIssues ??
+                data.writing_issues ??
+                [],
+
+            suggestions:
+                data.suggestions ?? [],
+
+            analyzedAt:
+                data.analyzedAt ??
+                data.analyzed_at ??
+                null,
+        };
+    };
+
+    // =========================================================
+    // SIMILARITY CHECK
+    // IMPORTANT:
+    // THIS ALSO RUNS ONLY WHEN BUTTON IS PRESSED
     // =========================================================
 
     const handleCheckSimilarity = async (
         manuscriptId
     ) => {
         setError("");
-        setCheckingSimilarityId(manuscriptId);
+        setCheckingSimilarityId(
+            manuscriptId
+        );
 
         try {
             const response = await fetch(
@@ -437,12 +558,15 @@ function AuthorDashboard() {
                 {
                     method: "POST",
                     headers: {
-                        Authorization: `Bearer ${token}`,
+                        Authorization:
+                            `Bearer ${token}`,
                     },
                 }
             );
 
-            const data = await response.json();
+            const data = await response
+                .json()
+                .catch(() => ({}));
 
             if (!response.ok) {
                 throw new Error(
@@ -451,1003 +575,1306 @@ function AuthorDashboard() {
                 );
             }
 
-            setSimilarityResults((previous) => ({
-                ...previous,
-                [manuscriptId]: data,
-            }));
+            setSimilarityResults(
+                (previous) => ({
+                    ...previous,
+                    [manuscriptId]:
+                        data,
+                })
+            );
         } catch (err) {
+            console.error(
+                "Similarity error:",
+                err
+            );
+
             setError(
                 err.message ||
                 "Failed to check manuscript similarity"
             );
         } finally {
-            setCheckingSimilarityId(null);
+            setCheckingSimilarityId(
+                null
+            );
         }
     };
 
     // =========================================================
-    // SELECTED MANUSCRIPT FOR PDF MANAGEMENT
+    // SELECTED MANUSCRIPT
     // =========================================================
 
     const selectedManuscript =
         manuscripts.find(
             (manuscript) =>
-                String(manuscript.id) ===
-                String(selectedManuscriptId)
+                String(
+                    manuscript.id
+                ) ===
+                String(
+                    selectedManuscriptId
+                )
         );
+
+    // =========================================================
+    // STATISTICS
+    // =========================================================
+
+    const draftCount =
+        manuscripts.filter(
+            (manuscript) =>
+                manuscript.status ===
+                "DRAFT"
+        ).length;
+
+    const submittedCount =
+        manuscripts.filter(
+            (manuscript) =>
+                manuscript.status ===
+                "SUBMITTED"
+        ).length;
+
+    const acceptedCount =
+        manuscripts.filter(
+            (manuscript) =>
+                manuscript.status ===
+                "ACCEPTED"
+        ).length;
+
+    const uploadedPdfCount =
+        manuscripts.filter(
+            (manuscript) =>
+                Boolean(
+                    manuscript.fileName
+                )
+        ).length;
+
+    // =========================================================
+    // STATUS CLASS
+    // =========================================================
+
+    const getStatusClass = (
+        status
+    ) => {
+        switch (status) {
+            case "ACCEPTED":
+                return "status accepted";
+
+            case "REJECTED":
+                return "status rejected";
+
+            case "SUBMITTED":
+                return "status submitted";
+
+            case "UNDER_REVIEW":
+                return "status review";
+
+            case "REVISION_REQUIRED":
+                return "status revision";
+
+            case "DRAFT":
+            default:
+                return "status draft";
+        }
+    };
 
     // =========================================================
     // RENDER
     // =========================================================
 
-    return (
-        <div
-            style={{
-                padding: "32px",
-                textAlign: "left",
-            }}
-        >
-            {/* =====================================================
-                HEADER
-            ====================================================== */}
+    if (loading) {
+        return (
+            <div className="loading-container">
+                <h2>
+                    Loading Author Dashboard...
+                </h2>
 
-            <header
-                style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    marginBottom: "32px",
-                }}
-            >
+                <p>
+                    Please wait while your
+                    manuscripts are loaded.
+                </p>
+            </div>
+        );
+    }
+
+    return (
+        <div className="author-dashboard">
+
+            {/* =================================================
+                HEADER
+            ================================================= */}
+
+            <header className="author-dashboard-header">
+
                 <div>
-                    <h1 style={{ margin: 0 }}>
+                    <h1>
                         Author Dashboard
                     </h1>
 
                     <p>
-                        Welcome, {user?.fullName}
+                        Manage your research
+                        manuscripts, submissions
+                        and analysis.
                     </p>
                 </div>
 
-                <button onClick={logout}>
+                <button
+                    className="logout-button"
+                    onClick={logout}
+                >
                     Logout
                 </button>
+
             </header>
 
-            {/* =====================================================
-                GENERAL ERROR
-            ====================================================== */}
+            <main className="author-dashboard-content">
 
-            {error && (
-                <p
-                    role="alert"
-                    style={{
-                        color: "red",
-                        marginBottom: "20px",
-                    }}
-                >
-                    {error}
-                </p>
-            )}
+                {/* =================================================
+                    GENERAL ERROR
+                ================================================= */}
 
-            {/* =====================================================
-                PDF MANAGEMENT
-            ====================================================== */}
-
-            <section
-                style={{
-                    marginBottom: "32px",
-                    padding: "20px",
-                    border: "1px solid #444",
-                    borderRadius: "10px",
-                    backgroundColor: "#17181f",
-                }}
-            >
-                <h2 style={{ marginTop: 0 }}>
-                    Manuscript PDF Management
-                </h2>
-
-                <p
-                    style={{
-                        opacity: 0.75,
-                    }}
-                >
-                    Upload or replace the PDF associated
-                    with one of your manuscripts.
-                </p>
-
-                {/* Select manuscript */}
-
-                <div
-                    style={{
-                        marginTop: "16px",
-                    }}
-                >
-                    <label
-                        htmlFor="manuscript-select"
-                        style={{
-                            display: "block",
-                            marginBottom: "8px",
-                            fontWeight: "bold",
-                        }}
-                    >
-                        Select Manuscript
-                    </label>
-
-                    <select
-                        id="manuscript-select"
-                        value={selectedManuscriptId}
-                        onChange={(event) => {
-                            setSelectedManuscriptId(
-                                event.target.value
-                            );
-                            setFileUploadError("");
-                        }}
-                        style={{
-                            width: "100%",
-                            maxWidth: "600px",
-                            padding: "10px",
-                            borderRadius: "6px",
-                        }}
-                    >
-                        <option value="">
-                            Select a manuscript
-                        </option>
-
-                        {manuscripts.map(
-                            (manuscript) => (
-                                <option
-                                    key={manuscript.id}
-                                    value={manuscript.id}
-                                >
-                                    {manuscript.title}
-                                </option>
-                            )
-                        )}
-                    </select>
-                </div>
-
-                {/* Selected manuscript */}
-
-                {selectedManuscript && (
+                {error && (
                     <div
-                        style={{
-                            marginTop: "20px",
-                        }}
+                        className="error-message"
+                        role="alert"
                     >
-                        {/* Current PDF */}
-
-                        {selectedManuscript.fileName ? (
-                            <div>
-                                <p>
-                                    <strong>
-                                        Current PDF:
-                                    </strong>{" "}
-                                    {
-                                        selectedManuscript.fileName
-                                    }
-                                </p>
-
-                                {selectedManuscript.fileSize && (
-                                    <p
-                                        style={{
-                                            opacity: 0.7,
-                                        }}
-                                    >
-                                        <strong>
-                                            File Size:
-                                        </strong>{" "}
-                                        {(
-                                            selectedManuscript.fileSize /
-                                            1024 /
-                                            1024
-                                        ).toFixed(2)}{" "}
-                                        MB
-                                    </p>
-                                )}
-
-                                <a
-                                    href={`${API_BASE_URL}/api/manuscripts/${selectedManuscript.id}/file`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    style={{
-                                        display:
-                                            "inline-block",
-                                        marginBottom:
-                                            "12px",
-                                        marginRight:
-                                            "12px",
-                                    }}
-                                >
-                                    View PDF
-                                </a>
-                            </div>
-                        ) : (
-                            <p>
-                                <strong>
-                                    Current PDF:
-                                </strong>{" "}
-                                No PDF uploaded
-                            </p>
-                        )}
-
-                        {/* Hidden file input */}
-
-                        <input
-                            type="file"
-                            accept="application/pdf,.pdf"
-                            id="manuscript-pdf-upload"
-                            style={{
-                                display: "none",
-                            }}
-                            disabled={
-                                uploadingFileId ===
-                                selectedManuscript.id
-                            }
-                            onChange={(event) => {
-                                const file =
-                                    event.target.files?.[0];
-
-                                if (file) {
-                                    handleFileUpload(
-                                        selectedManuscript.id,
-                                        file
-                                    );
-                                }
-
-                                // Reset input so the same
-                                // file can be selected again.
-                                event.target.value = "";
-                            }}
-                        />
-
-                        {/* Upload / Replace button */}
-
-                        <label
-                            htmlFor="manuscript-pdf-upload"
-                            style={{
-                                display:
-                                    "inline-block",
-                                padding: "10px 16px",
-                                border: "1px solid #555",
-                                borderRadius: "6px",
-                                cursor:
-                                    uploadingFileId ===
-                                        selectedManuscript.id
-                                        ? "not-allowed"
-                                        : "pointer",
-                                marginTop: "8px",
-                                opacity:
-                                    uploadingFileId ===
-                                        selectedManuscript.id
-                                        ? 0.6
-                                        : 1,
-                            }}
-                        >
-                            {uploadingFileId ===
-                                selectedManuscript.id
-                                ? "Uploading..."
-                                : selectedManuscript.fileName
-                                    ? "Replace PDF"
-                                    : "Upload PDF"}
-                        </label>
+                        {error}
                     </div>
                 )}
 
-                {/* Upload error */}
+                {/* =================================================
+                    DASHBOARD STATISTICS
+                ================================================= */}
 
-                {fileUploadError && (
-                    <p
-                        role="alert"
-                        style={{
-                            color: "red",
-                            marginTop: "12px",
-                        }}
-                    >
-                        {fileUploadError}
-                    </p>
-                )}
-            </section>
+                <section className="dashboard-stats">
 
-            {/* =====================================================
-                MY MANUSCRIPTS
-            ====================================================== */}
+                    <div className="stat-card">
+                        <h3>
+                            Total Manuscripts
+                        </h3>
 
-            <section>
-                <h2>My Manuscripts</h2>
-
-                {loading && (
-                    <p>Loading manuscripts...</p>
-                )}
-
-                {!loading &&
-                    !error &&
-                    manuscripts.length === 0 && (
                         <p>
-                            You haven't created any
-                            manuscripts yet.
+                            {manuscripts.length}
                         </p>
-                    )}
+                    </div>
 
-                {!loading &&
-                    manuscripts.length > 0 && (
-                        <div
-                            style={{
-                                display: "grid",
-                                gap: "16px",
-                                marginTop: "20px",
-                            }}
+                    <div className="stat-card">
+                        <h3>
+                            Drafts
+                        </h3>
+
+                        <p>
+                            {draftCount}
+                        </p>
+                    </div>
+
+                    <div className="stat-card">
+                        <h3>
+                            Submitted
+                        </h3>
+
+                        <p>
+                            {submittedCount}
+                        </p>
+                    </div>
+
+                    <div className="stat-card">
+                        <h3>
+                            Accepted
+                        </h3>
+
+                        <p>
+                            {acceptedCount}
+                        </p>
+                    </div>
+
+                    <div className="stat-card">
+                        <h3>
+                            PDFs Uploaded
+                        </h3>
+
+                        <p>
+                            {uploadedPdfCount}
+                        </p>
+                    </div>
+
+                </section>
+
+                {/* =================================================
+                    RESEARCH MANUSCRIPTS HEADER
+                ================================================= */}
+
+                <section className="dashboard-section">
+
+                    <div className="section-header">
+
+                        <div>
+                            <h2>
+                                Research Manuscripts
+                            </h2>
+
+                            <p>
+                                Create and manage
+                                your research
+                                manuscripts.
+                            </p>
+                        </div>
+
+                        <button
+                            className="primary-button"
+                            onClick={() =>
+                                navigate(
+                                    "/author/manuscripts/new"
+                                )
+                            }
                         >
-                            {manuscripts.map(
-                                (manuscript) => (
-                                    <article
-                                        key={
-                                            manuscript.id
-                                        }
-                                        style={{
-                                            border:
-                                                "1px solid #ddd",
-                                            borderRadius:
-                                                "8px",
-                                            padding:
-                                                "20px",
-                                        }}
-                                    >
-                                        {/* =================================================
-                                            BASIC MANUSCRIPT INFORMATION
-                                        ================================================== */}
+                            + New Manuscript
+                        </button>
 
-                                        <h2>
+                    </div>
+
+                </section>
+
+                {/* =================================================
+                    PDF MANAGEMENT
+                ================================================= */}
+
+                <section className="dashboard-section">
+
+                    <div className="section-header">
+
+                        <div>
+                            <h2>
+                                Research Paper PDF Upload
+                            </h2>
+
+                            <p>
+                                Upload or replace
+                                the PDF associated
+                                with a manuscript.
+                            </p>
+                        </div>
+
+                    </div>
+
+                    <div className="pdf-management-card">
+
+                        {/* SELECT MANUSCRIPT */}
+
+                        <div className="form-group">
+
+                            <label htmlFor="manuscript-select">
+                                Select Manuscript
+                            </label>
+
+                            <select
+                                id="manuscript-select"
+                                value={
+                                    selectedManuscriptId
+                                }
+                                onChange={(
+                                    event
+                                ) => {
+                                    setSelectedManuscriptId(
+                                        event
+                                            .target
+                                            .value
+                                    );
+
+                                    setSelectedFile(
+                                        null
+                                    );
+
+                                    setFileUploadError(
+                                        ""
+                                    );
+
+                                    setFileUploadSuccess(
+                                        ""
+                                    );
+                                }}
+                            >
+
+                                <option value="">
+                                    -- Select
+                                    Manuscript --
+                                </option>
+
+                                {manuscripts.map(
+                                    (
+                                        manuscript
+                                    ) => (
+                                        <option
+                                            key={
+                                                manuscript.id
+                                            }
+                                            value={
+                                                manuscript.id
+                                            }
+                                        >
+                                            #
+                                            {
+                                                manuscript.id
+                                            }{" "}
+                                            -{" "}
                                             {
                                                 manuscript.title
                                             }
-                                        </h2>
+                                        </option>
+                                    )
+                                )}
 
+                            </select>
+
+                        </div>
+
+                        {/* CURRENT FILE */}
+
+                        <div className="selected-file-box">
+
+                            <strong>
+                                Selected Manuscript:
+                            </strong>
+
+                            <p>
+                                {selectedManuscript
+                                    ? selectedManuscript.title
+                                    : "No manuscript selected"}
+                            </p>
+
+                            {selectedManuscript && (
+                                <>
+
+                                    <strong>
+                                        Current PDF:
+                                    </strong>
+
+                                    <p>
+                                        {selectedManuscript.fileName ||
+                                            "No PDF uploaded"}
+                                    </p>
+
+                                    {selectedManuscript.fileSize && (
                                         <p>
-                                            <strong>
-                                                Status:
-                                            </strong>{" "}
-                                            {
-                                                manuscript.status
-                                            }
+                                            File Size:{" "}
+                                            {(
+                                                selectedManuscript.fileSize /
+                                                1024 /
+                                                1024
+                                            ).toFixed(
+                                                2
+                                            )}{" "}
+                                            MB
                                         </p>
+                                    )}
 
-                                        <p>
-                                            <strong>
-                                                Category:
-                                            </strong>{" "}
-                                            {
-                                                manuscript.category
-                                            }
-                                        </p>
+                                </>
+                            )}
 
-                                        <p>
-                                            <strong>
-                                                Keywords:
-                                            </strong>{" "}
-                                            {
-                                                manuscript.keywords
-                                            }
-                                        </p>
+                        </div>
 
-                                        <p
-                                            style={{
-                                                marginTop:
-                                                    "12px",
-                                            }}
-                                        >
-                                            {
-                                                manuscript.abstractText
-                                            }
-                                        </p>
+                        {/* FILE SELECT */}
 
-                                        {/* =================================================
-                                            AI ANALYSIS RESULT
-                                        ================================================== */}
+                        <div className="form-group">
 
-                                        {analysisResults[
+                            <label htmlFor="research-paper-file">
+                                Select PDF
+                            </label>
+
+                            <input
+                                id="research-paper-file"
+                                type="file"
+                                accept=".pdf,application/pdf"
+                                disabled={
+                                    uploadingFile
+                                }
+                                onChange={(
+                                    event
+                                ) => {
+                                    const file =
+                                        event
+                                            .target
+                                            .files?.[0];
+
+                                    handleFileSelection(
+                                        file
+                                    );
+
+                                    event.target.value =
+                                        "";
+                                }}
+                            />
+
+                            <small>
+                                PDF only.
+                                Maximum file
+                                size: 10 MB.
+                            </small>
+
+                        </div>
+
+                        {/* SELECTED FILE */}
+
+                        {selectedFile && (
+                            <div className="selected-file-box">
+
+                                <strong>
+                                    Selected PDF
+                                </strong>
+
+                                <p>
+                                    {selectedFile.name}
+                                </p>
+
+                                <small>
+                                    {(
+                                        selectedFile.size /
+                                        1024 /
+                                        1024
+                                    ).toFixed(
+                                        2
+                                    )}{" "}
+                                    MB
+                                </small>
+
+                            </div>
+                        )}
+
+                        {/* UPLOAD BUTTON */}
+
+                        <div>
+
+                            <button
+                                className="primary-button"
+                                type="button"
+                                onClick={
+                                    handleFileUpload
+                                }
+                                disabled={
+                                    uploadingFile ||
+                                    !selectedFile ||
+                                    !selectedManuscriptId
+                                }
+                            >
+                                {uploadingFile
+                                    ? "Uploading..."
+                                    : selectedManuscript?.fileName
+                                        ? "Replace PDF"
+                                        : "Upload PDF"}
+                            </button>
+
+                            {selectedManuscript?.fileName && (
+                                <button
+                                    className="secondary-button"
+                                    type="button"
+                                    onClick={() =>
+                                        handleViewPdf(
+                                            selectedManuscript.id
+                                        )
+                                    }
+                                    disabled={
+                                        openingPdfId ===
+                                        selectedManuscript.id
+                                    }
+                                    style={{
+                                        marginLeft:
+                                            "10px",
+                                    }}
+                                >
+                                    {openingPdfId ===
+                                        selectedManuscript.id
+                                        ? "Opening..."
+                                        : "View Current PDF"}
+                                </button>
+                            )}
+
+                        </div>
+
+                    </div>
+
+                    {fileUploadError && (
+                        <div className="error-message">
+                            {fileUploadError}
+                        </div>
+                    )}
+
+                    {fileUploadSuccess && (
+                        <div className="success-message">
+                            ✓{" "}
+                            {
+                                fileUploadSuccess
+                            }
+                        </div>
+                    )}
+
+                </section>
+
+                {/* =================================================
+                    MY MANUSCRIPTS
+                ================================================= */}
+
+                <section className="dashboard-section">
+
+                    <div className="section-header">
+
+                        <div>
+                            <h2>
+                                My Manuscripts
+                            </h2>
+
+                            <p>
+                                View your
+                                manuscripts and
+                                manage their
+                                workflow.
+                            </p>
+                        </div>
+
+                    </div>
+
+                    {manuscripts.length ===
+                        0 && (
+                            <div className="empty-state">
+
+                                <p>
+                                    You haven't
+                                    created any
+                                    manuscripts
+                                    yet.
+                                </p>
+
+                                <button
+                                    className="primary-button"
+                                    onClick={() =>
+                                        navigate(
+                                            "/author/manuscripts/new"
+                                        )
+                                    }
+                                >
+                                    Create Manuscript
+                                </button>
+
+                            </div>
+                        )}
+
+                    {manuscripts.length >
+                        0 && (
+                            <div className="manuscripts-grid">
+
+                                {manuscripts.map(
+                                    (
+                                        manuscript
+                                    ) => {
+
+                                        const analysis =
+                                            analysisResults[
                                             manuscript.id
-                                        ] && (
-                                                <div
-                                                    style={{
-                                                        marginTop:
-                                                            "16px",
-                                                        padding:
-                                                            "24px",
-                                                        border:
-                                                            "1px solid #444",
-                                                        borderRadius:
-                                                            "10px",
-                                                        backgroundColor:
-                                                            "#17181f",
-                                                    }}
-                                                >
-                                                    <h3
-                                                        style={{
-                                                            marginTop:
-                                                                0,
-                                                        }}
-                                                    >
-                                                        AI Manuscript
-                                                        Analysis
-                                                    </h3>
+                                            ];
 
-                                                    <p
-                                                        style={{
-                                                            marginTop:
-                                                                "4px",
-                                                            marginBottom:
-                                                                "20px",
-                                                            opacity:
-                                                                0.75,
-                                                            fontSize:
-                                                                "14px",
-                                                        }}
-                                                    >
-                                                        AI-powered
-                                                        academic
-                                                        analysis based
-                                                        on the
-                                                        manuscript
-                                                        information
-                                                        provided.
-                                                    </p>
+                                        const similarity =
+                                            similarityResults[
+                                            manuscript.id
+                                            ];
 
-                                                    {/* Assessment */}
+                                        return (
+                                            <article
+                                                className="manuscript-card"
+                                                key={
+                                                    manuscript.id
+                                                }
+                                            >
 
-                                                    <h4>
-                                                        Overall
-                                                        Assessment
-                                                    </h4>
+                                                {/* =================================================
+                                                HEADER
+                                            ================================================= */}
 
-                                                    <div
-                                                        style={{
-                                                            display:
-                                                                "grid",
-                                                            gridTemplateColumns:
-                                                                "repeat(auto-fit, minmax(180px, 1fr))",
-                                                            gap: "10px",
-                                                            marginBottom:
-                                                                "20px",
-                                                        }}
-                                                    >
-                                                        <div>
-                                                            <strong>
-                                                                Abstract
-                                                            </strong>
+                                                <div className="manuscript-card-header">
 
-                                                            <p>
-                                                                {
-                                                                    analysisResults[
-                                                                        manuscript
-                                                                            .id
-                                                                    ]
-                                                                        .abstract_quality
-                                                                }
-                                                            </p>
-                                                        </div>
+                                                    <div>
 
-                                                        <div>
-                                                            <strong>
-                                                                Methodology
-                                                            </strong>
+                                                        <span className="manuscript-id">
+                                                            Manuscript #
+                                                            {
+                                                                manuscript.id
+                                                            }
+                                                        </span>
 
-                                                            <p>
-                                                                {
-                                                                    analysisResults[
-                                                                        manuscript
-                                                                            .id
-                                                                    ]
-                                                                        .methodology_quality
-                                                                }
-                                                            </p>
-                                                        </div>
+                                                        <h3>
+                                                            {
+                                                                manuscript.title
+                                                            }
+                                                        </h3>
 
-                                                        <div>
-                                                            <strong>
-                                                                Results
-                                                            </strong>
-
-                                                            <p>
-                                                                {
-                                                                    analysisResults[
-                                                                        manuscript
-                                                                            .id
-                                                                    ]
-                                                                        .results_quality
-                                                                }
-                                                            </p>
-                                                        </div>
-
-                                                        <div>
-                                                            <strong>
-                                                                Conclusion
-                                                            </strong>
-
-                                                            <p>
-                                                                {
-                                                                    analysisResults[
-                                                                        manuscript
-                                                                            .id
-                                                                    ]
-                                                                        .conclusion_quality
-                                                                }
-                                                            </p>
-                                                        </div>
-
-                                                        <div>
-                                                            <strong>
-                                                                Writing
-                                                                Quality
-                                                            </strong>
-
-                                                            <p>
-                                                                {
-                                                                    analysisResults[
-                                                                        manuscript
-                                                                            .id
-                                                                    ]
-                                                                        .writing_quality
-                                                                }
-                                                            </p>
-                                                        </div>
-
-                                                        <div>
-                                                            <strong>
-                                                                Research
-                                                                Relevance
-                                                            </strong>
-
-                                                            <p>
-                                                                {
-                                                                    analysisResults[
-                                                                        manuscript
-                                                                            .id
-                                                                    ]
-                                                                        .relevance
-                                                                }
-                                                            </p>
-                                                        </div>
                                                     </div>
 
-                                                    {/* Statistics */}
+                                                    <span
+                                                        className={getStatusClass(
+                                                            manuscript.status
+                                                        )}
+                                                    >
+                                                        {
+                                                            manuscript.status
+                                                        }
+                                                    </span>
+
+                                                </div>
+
+                                                {/* =================================================
+                                                DETAILS
+                                            ================================================= */}
+
+                                                <div className="manuscript-details">
+
+                                                    <p>
+                                                        <strong>
+                                                            Category:
+                                                        </strong>{" "}
+                                                        {
+                                                            manuscript.category ||
+                                                            "Not specified"
+                                                        }
+                                                    </p>
+
+                                                    <p>
+                                                        <strong>
+                                                            Keywords:
+                                                        </strong>{" "}
+                                                        {
+                                                            manuscript.keywords ||
+                                                            "Not specified"
+                                                        }
+                                                    </p>
+
+                                                    <p>
+                                                        <strong>
+                                                            Abstract:
+                                                        </strong>
+                                                    </p>
+
+                                                    <p className="abstract-preview">
+                                                        {
+                                                            manuscript.abstractText ||
+                                                            "No abstract available."
+                                                        }
+                                                    </p>
+
+                                                </div>
+
+                                                {/* =================================================
+                                                PDF INFORMATION
+                                            ================================================= */}
+
+                                                <div className="pdf-info">
 
                                                     <h4>
-                                                        Manuscript
-                                                        Statistics
+                                                        Research Paper PDF
                                                     </h4>
 
-                                                    <p>
-                                                        <strong>
-                                                            Abstract Word
-                                                            Count:
-                                                        </strong>{" "}
-                                                        {
-                                                            analysisResults[
-                                                                manuscript
-                                                                    .id
-                                                            ]
-                                                                .abstract_word_count
-                                                        }
-                                                    </p>
-
-                                                    <p>
-                                                        <strong>
-                                                            Keyword
-                                                            Count:
-                                                        </strong>{" "}
-                                                        {
-                                                            analysisResults[
-                                                                manuscript
-                                                                    .id
-                                                            ]
-                                                                .keyword_count
-                                                        }
-                                                    </p>
-
-                                                    {/* Missing Sections */}
-
-                                                    {analysisResults[
-                                                        manuscript.id
-                                                    ]
-                                                        .missing_sections
-                                                        ?.length >
-                                                        0 && (
-                                                            <div
-                                                                style={{
-                                                                    marginTop:
-                                                                        "20px",
-                                                                }}
-                                                            >
-                                                                <h4>
-                                                                    Missing /
-                                                                    Weak
-                                                                    Sections
-                                                                </h4>
-
-                                                                <ul>
-                                                                    {analysisResults[
-                                                                        manuscript
-                                                                            .id
-                                                                    ].missing_sections.map(
-                                                                        (
-                                                                            section,
-                                                                            index
-                                                                        ) => (
-                                                                            <li
-                                                                                key={
-                                                                                    index
-                                                                                }
-                                                                            >
-                                                                                {
-                                                                                    section
-                                                                                }
-                                                                            </li>
-                                                                        )
-                                                                    )}
-                                                                </ul>
-                                                            </div>
-                                                        )}
-
-                                                    {/* Writing Issues */}
-
-                                                    {analysisResults[
-                                                        manuscript.id
-                                                    ]
-                                                        .writing_issues
-                                                        ?.length >
-                                                        0 && (
-                                                            <div
-                                                                style={{
-                                                                    marginTop:
-                                                                        "20px",
-                                                                }}
-                                                            >
-                                                                <h4>
-                                                                    Writing
-                                                                    Issues
-                                                                </h4>
-
-                                                                <ul>
-                                                                    {analysisResults[
-                                                                        manuscript
-                                                                            .id
-                                                                    ].writing_issues.map(
-                                                                        (
-                                                                            issue,
-                                                                            index
-                                                                        ) => (
-                                                                            <li
-                                                                                key={
-                                                                                    index
-                                                                                }
-                                                                            >
-                                                                                {
-                                                                                    issue
-                                                                                }
-                                                                            </li>
-                                                                        )
-                                                                    )}
-                                                                </ul>
-                                                            </div>
-                                                        )}
-
-                                                    {/* Suggestions */}
-
-                                                    {analysisResults[
-                                                        manuscript.id
-                                                    ]
-                                                        .suggestions
-                                                        ?.length >
-                                                        0 && (
-                                                            <div
-                                                                style={{
-                                                                    marginTop:
-                                                                        "20px",
-                                                                }}
-                                                            >
-                                                                <h4>
-                                                                    AI
-                                                                    Suggestions
-                                                                </h4>
-
-                                                                <ol>
-                                                                    {analysisResults[
-                                                                        manuscript
-                                                                            .id
-                                                                    ].suggestions.map(
-                                                                        (
-                                                                            suggestion,
-                                                                            index
-                                                                        ) => (
-                                                                            <li
-                                                                                key={
-                                                                                    index
-                                                                                }
-                                                                                style={{
-                                                                                    marginBottom:
-                                                                                        "8px",
-                                                                                }}
-                                                                            >
-                                                                                {
-                                                                                    suggestion
-                                                                                }
-                                                                            </li>
-                                                                        )
-                                                                    )}
-                                                                </ol>
-                                                            </div>
-                                                        )}
-
-                                                    {/* Analysis Time */}
-
-                                                    {(
-                                                        analysisResults[
-                                                            manuscript.id
-                                                        ]
-                                                            .analyzedAt ||
-                                                        analysisResults[
-                                                            manuscript.id
-                                                        ]
-                                                            .analyzed_at
-                                                    ) && (
-                                                            <p
-                                                                style={{
-                                                                    marginTop:
-                                                                        "20px",
-                                                                    fontSize:
-                                                                        "13px",
-                                                                    opacity:
-                                                                        0.65,
-                                                                }}
-                                                            >
+                                                    {manuscript.fileName ? (
+                                                        <>
+                                                            <p>
                                                                 <strong>
-                                                                    Analyzed
-                                                                    At:
+                                                                    File:
                                                                 </strong>{" "}
-                                                                {new Date(
-                                                                    analysisResults[
-                                                                        manuscript
-                                                                            .id
-                                                                    ]
-                                                                        .analyzedAt ||
-                                                                    analysisResults[
-                                                                        manuscript
-                                                                            .id
-                                                                    ]
-                                                                        .analyzed_at
-                                                                ).toLocaleString()}
+                                                                {
+                                                                    manuscript.fileName
+                                                                }
                                                             </p>
-                                                        )}
-                                                </div>
-                                            )}
 
-                                        {/* =================================================
-                                            ACTION BUTTONS
-                                        ================================================== */}
+                                                            {manuscript.fileSize && (
+                                                                <p>
+                                                                    <strong>
+                                                                        Size:
+                                                                    </strong>{" "}
+                                                                    {(
+                                                                        manuscript.fileSize /
+                                                                        1024 /
+                                                                        1024
+                                                                    ).toFixed(
+                                                                        2
+                                                                    )}{" "}
+                                                                    MB
+                                                                </p>
+                                                            )}
 
-                                        <button
-                                            onClick={() =>
-                                                handleAnalyze(
-                                                    manuscript.id
-                                                )
-                                            }
-                                            disabled={
-                                                analyzingId ===
-                                                manuscript.id
-                                            }
-                                            style={{
-                                                marginTop:
-                                                    "12px",
-                                                marginRight:
-                                                    "10px",
-                                            }}
-                                        >
-                                            {analyzingId ===
-                                                manuscript.id
-                                                ? "Analyzing..."
-                                                : "Analyze with AI"}
-                                        </button>
-
-                                        <button
-                                            onClick={() =>
-                                                handleCheckSimilarity(
-                                                    manuscript.id
-                                                )
-                                            }
-                                            disabled={
-                                                checkingSimilarityId ===
-                                                manuscript.id
-                                            }
-                                            style={{
-                                                marginTop:
-                                                    "12px",
-                                                marginRight:
-                                                    "10px",
-                                            }}
-                                        >
-                                            {checkingSimilarityId ===
-                                                manuscript.id
-                                                ? "Checking..."
-                                                : "Check Similarity"}
-                                        </button>
-
-                                        {/* =================================================
-                                            SIMILARITY RESULT
-                                        ================================================== */}
-
-                                        {similarityResults[
-                                            manuscript.id
-                                        ] && (
-                                                <div
-                                                    style={{
-                                                        marginTop:
-                                                            "20px",
-                                                        padding:
-                                                            "20px",
-                                                        border:
-                                                            "1px solid #444",
-                                                        borderRadius:
-                                                            "10px",
-                                                        backgroundColor:
-                                                            "#17181f",
-                                                    }}
-                                                >
-                                                    <h3
-                                                        style={{
-                                                            marginTop:
-                                                                0,
-                                                        }}
-                                                    >
-                                                        Manuscript
-                                                        Similarity
-                                                        Analysis
-                                                    </h3>
-
-                                                    <p>
-                                                        <strong>
-                                                            Similarity
-                                                            Percentage:
-                                                        </strong>{" "}
-                                                        {
-                                                            similarityResults[
-                                                                manuscript.id
-                                                            ]
-                                                                .similarity_percentage ??
-                                                            similarityResults[
-                                                                manuscript.id
-                                                            ]
-                                                                .similarityPercentage ??
-                                                            0
-                                                        }
-                                                        %
-                                                    </p>
-
-                                                    <p>
-                                                        <strong>
-                                                            Status:
-                                                        </strong>{" "}
-                                                        {
-                                                            similarityResults[
-                                                                manuscript.id
-                                                            ]
-                                                                .status
-                                                        }
-                                                    </p>
-
-                                                    {similarityResults[
-                                                        manuscript.id
-                                                    ].matches
-                                                        ?.length >
-                                                        0 ? (
-                                                        <div>
-                                                            <h4>
-                                                                Matching
-                                                                Manuscripts
-                                                            </h4>
-
-                                                            <ul>
-                                                                {similarityResults[
-                                                                    manuscript
-                                                                        .id
-                                                                ].matches.map(
-                                                                    (
-                                                                        match
-                                                                    ) => (
-                                                                        <li
-                                                                            key={
-                                                                                match.manuscript_id ??
-                                                                                match.manuscriptId
-                                                                            }
-                                                                            style={{
-                                                                                marginBottom:
-                                                                                    "10px",
-                                                                            }}
-                                                                        >
-                                                                            <strong>
-                                                                                {
-                                                                                    match.title
-                                                                                }
-                                                                            </strong>
-
-                                                                            {" — "}
-
-                                                                            {match.similarity_percentage ??
-                                                                                match.similarityPercentage ??
-                                                                                0}
-                                                                            %
-                                                                        </li>
-                                                                    )
-                                                                )}
-                                                            </ul>
-                                                        </div>
-                                                    ) : (
-                                                        <p>
-                                                            No similar
-                                                            manuscripts
-                                                            were found.
-                                                        </p>
-                                                    )}
-                                                </div>
-                                            )}
-
-                                        {/* =================================================
-                                            EDIT / SUBMIT / DELETE
-                                        ================================================== */}
-
-                                        {(manuscript.status ===
-                                            "DRAFT" ||
-                                            manuscript.status ===
-                                            "REVISION_REQUIRED") && (
-                                                <div
-                                                    style={{
-                                                        display:
-                                                            "flex",
-                                                        gap: "10px",
-                                                        marginTop:
-                                                            "16px",
-                                                    }}
-                                                >
-                                                    <button
-                                                        onClick={() =>
-                                                            navigate(
-                                                                `/author/manuscripts/${manuscript.id}/edit`
-                                                            )
-                                                        }
-                                                    >
-                                                        Edit
-                                                    </button>
-
-                                                    <button
-                                                        onClick={() =>
-                                                            handleSubmit(
-                                                                manuscript.id
-                                                            )
-                                                        }
-                                                    >
-                                                        Submit
-                                                    </button>
-
-                                                    {manuscript.status ===
-                                                        "DRAFT" && (
                                                             <button
+                                                                className="secondary-button"
                                                                 onClick={() =>
-                                                                    handleDelete(
+                                                                    handleViewPdf(
                                                                         manuscript.id
                                                                     )
                                                                 }
+                                                                disabled={
+                                                                    openingPdfId ===
+                                                                    manuscript.id
+                                                                }
                                                             >
-                                                                Delete
+                                                                {openingPdfId ===
+                                                                    manuscript.id
+                                                                    ? "Opening..."
+                                                                    : "View PDF"}
                                                             </button>
-                                                        )}
+                                                        </>
+                                                    ) : (
+                                                        <p>
+                                                            No PDF
+                                                            uploaded.
+                                                            Use the
+                                                            PDF
+                                                            Management
+                                                            section
+                                                            above.
+                                                        </p>
+                                                    )}
+
                                                 </div>
-                                            )}
-                                    </article>
-                                )
-                            )}
-                        </div>
-                    )}
-            </section>
+
+                                                {/* =================================================
+                                                AI ANALYSIS
+                                                HIDDEN UNTIL BUTTON IS PRESSED
+                                            ================================================= */}
+
+                                                <div className="ai-analysis-section">
+
+                                                    <div className="analysis-header">
+
+                                                        <h4>
+                                                            AI Manuscript
+                                                            Analysis
+                                                        </h4>
+
+                                                        <button
+                                                            className="primary-button"
+                                                            onClick={() =>
+                                                                handleAnalyze(
+                                                                    manuscript.id
+                                                                )
+                                                            }
+                                                            disabled={
+                                                                analyzingId ===
+                                                                manuscript.id
+                                                            }
+                                                        >
+                                                            {analyzingId ===
+                                                                manuscript.id
+                                                                ? "Analyzing..."
+                                                                : "Analyze with AI"}
+                                                        </button>
+
+                                                    </div>
+
+                                                    {!analysis &&
+                                                        analyzingId !==
+                                                        manuscript.id && (
+                                                            <div className="analysis-placeholder">
+                                                                Click{" "}
+                                                                <strong>
+                                                                    Analyze with AI
+                                                                </strong>{" "}
+                                                                to analyze this
+                                                                manuscript.
+                                                            </div>
+                                                        )}
+
+                                                    {analyzingId ===
+                                                        manuscript.id && (
+                                                            <div className="analysis-placeholder">
+                                                                <span className="analysis-spinner">
+                                                                    ⟳
+                                                                </span>{" "}
+                                                                Analyzing
+                                                                manuscript
+                                                                with AI...
+                                                            </div>
+                                                        )}
+
+                                                    {analysis && (
+                                                        <div className="ai-analysis-content">
+
+                                                            {/* QUALITY */}
+
+                                                            <h5>
+                                                                Overall
+                                                                Assessment
+                                                            </h5>
+
+                                                            <div className="analysis-quality-grid">
+
+                                                                <div className="quality-card">
+                                                                    <strong>
+                                                                        Abstract
+                                                                        Quality
+                                                                    </strong>
+
+                                                                    <span>
+                                                                        {
+                                                                            analysis.abstractQuality
+                                                                        }
+                                                                    </span>
+                                                                </div>
+
+                                                                <div className="quality-card">
+                                                                    <strong>
+                                                                        Methodology
+                                                                    </strong>
+
+                                                                    <span>
+                                                                        {
+                                                                            analysis.methodologyQuality
+                                                                        }
+                                                                    </span>
+                                                                </div>
+
+                                                                <div className="quality-card">
+                                                                    <strong>
+                                                                        Results
+                                                                    </strong>
+
+                                                                    <span>
+                                                                        {
+                                                                            analysis.resultsQuality
+                                                                        }
+                                                                    </span>
+                                                                </div>
+
+                                                                <div className="quality-card">
+                                                                    <strong>
+                                                                        Conclusion
+                                                                    </strong>
+
+                                                                    <span>
+                                                                        {
+                                                                            analysis.conclusionQuality
+                                                                        }
+                                                                    </span>
+                                                                </div>
+
+                                                                <div className="quality-card">
+                                                                    <strong>
+                                                                        Writing
+                                                                        Quality
+                                                                    </strong>
+
+                                                                    <span>
+                                                                        {
+                                                                            analysis.writingQuality
+                                                                        }
+                                                                    </span>
+                                                                </div>
+
+                                                                <div className="quality-card">
+                                                                    <strong>
+                                                                        Relevance
+                                                                    </strong>
+
+                                                                    <span>
+                                                                        {
+                                                                            analysis.relevance
+                                                                        }
+                                                                    </span>
+                                                                </div>
+
+                                                            </div>
+
+                                                            {/* STATISTICS */}
+
+                                                            <div className="analysis-statistics">
+
+                                                                <div className="analysis-stat-card">
+
+                                                                    <strong>
+                                                                        Abstract
+                                                                        Word Count
+                                                                    </strong>
+
+                                                                    <span>
+                                                                        {
+                                                                            analysis.abstractWordCount
+                                                                        }
+                                                                    </span>
+
+                                                                </div>
+
+                                                                <div className="analysis-stat-card">
+
+                                                                    <strong>
+                                                                        Keyword
+                                                                        Count
+                                                                    </strong>
+
+                                                                    <span>
+                                                                        {
+                                                                            analysis.keywordCount
+                                                                        }
+                                                                    </span>
+
+                                                                </div>
+
+                                                            </div>
+
+                                                            {/* MISSING SECTIONS */}
+
+                                                            {analysis
+                                                                .missingSections
+                                                                ?.length >
+                                                                0 && (
+                                                                    <div className="analysis-list">
+
+                                                                        <h5>
+                                                                            Missing
+                                                                            Sections
+                                                                        </h5>
+
+                                                                        <ul>
+                                                                            {analysis.missingSections.map(
+                                                                                (
+                                                                                    section,
+                                                                                    index
+                                                                                ) => (
+                                                                                    <li
+                                                                                        key={
+                                                                                            index
+                                                                                        }
+                                                                                    >
+                                                                                        {
+                                                                                            section
+                                                                                        }
+                                                                                    </li>
+                                                                                )
+                                                                            )}
+                                                                        </ul>
+
+                                                                    </div>
+                                                                )}
+
+                                                            {/* WRITING ISSUES */}
+
+                                                            {analysis
+                                                                .writingIssues
+                                                                ?.length >
+                                                                0 && (
+                                                                    <div className="analysis-list">
+
+                                                                        <h5>
+                                                                            Writing
+                                                                            Issues
+                                                                        </h5>
+
+                                                                        <ul>
+                                                                            {analysis.writingIssues.map(
+                                                                                (
+                                                                                    issue,
+                                                                                    index
+                                                                                ) => (
+                                                                                    <li
+                                                                                        key={
+                                                                                            index
+                                                                                        }
+                                                                                    >
+                                                                                        {
+                                                                                            issue
+                                                                                        }
+                                                                                    </li>
+                                                                                )
+                                                                            )}
+                                                                        </ul>
+
+                                                                    </div>
+                                                                )}
+
+                                                            {/* SUGGESTIONS */}
+
+                                                            {analysis
+                                                                .suggestions
+                                                                ?.length >
+                                                                0 && (
+                                                                    <div className="analysis-list">
+
+                                                                        <h5>
+                                                                            AI
+                                                                            Suggestions
+                                                                        </h5>
+
+                                                                        <ol>
+                                                                            {analysis.suggestions.map(
+                                                                                (
+                                                                                    suggestion,
+                                                                                    index
+                                                                                ) => (
+                                                                                    <li
+                                                                                        key={
+                                                                                            index
+                                                                                        }
+                                                                                    >
+                                                                                        {
+                                                                                            suggestion
+                                                                                        }
+                                                                                    </li>
+                                                                                )
+                                                                            )}
+                                                                        </ol>
+
+                                                                    </div>
+                                                                )}
+
+                                                            {/* ANALYSIS TIME */}
+
+                                                            {analysis.analyzedAt && (
+                                                                <p className="analysis-last-run">
+                                                                    Last
+                                                                    analyzed:{" "}
+                                                                    {new Date(
+                                                                        analysis.analyzedAt
+                                                                    ).toLocaleString()}
+                                                                </p>
+                                                            )}
+
+                                                        </div>
+                                                    )}
+
+                                                </div>
+
+                                                {/* =================================================
+                                                SIMILARITY
+                                            ================================================= */}
+
+                                                <div className="similarity-section">
+
+                                                    <div className="similarity-header">
+
+                                                        <h4>
+                                                            Manuscript
+                                                            Similarity
+                                                            Check
+                                                        </h4>
+
+                                                        <button
+                                                            className="secondary-button"
+                                                            onClick={() =>
+                                                                handleCheckSimilarity(
+                                                                    manuscript.id
+                                                                )
+                                                            }
+                                                            disabled={
+                                                                checkingSimilarityId ===
+                                                                manuscript.id
+                                                            }
+                                                        >
+                                                            {checkingSimilarityId ===
+                                                                manuscript.id
+                                                                ? "Checking..."
+                                                                : "Check Similarity"}
+                                                        </button>
+
+                                                    </div>
+
+                                                    {!similarity &&
+                                                        checkingSimilarityId !==
+                                                        manuscript.id && (
+                                                            <div className="analysis-placeholder">
+                                                                Click{" "}
+                                                                <strong>
+                                                                    Check Similarity
+                                                                </strong>{" "}
+                                                                to compare this
+                                                                manuscript with
+                                                                other manuscripts.
+                                                            </div>
+                                                        )}
+
+                                                    {checkingSimilarityId ===
+                                                        manuscript.id && (
+                                                            <div className="analysis-placeholder">
+                                                                <span className="analysis-spinner">
+                                                                    ⟳
+                                                                </span>{" "}
+                                                                Checking
+                                                                manuscript
+                                                                similarity...
+                                                            </div>
+                                                        )}
+
+                                                    {similarity && (
+                                                        <>
+                                                            <div className="similarity-score">
+
+                                                                <strong>
+                                                                    Similarity:
+                                                                </strong>
+
+                                                                <span>
+                                                                    {Number(
+                                                                        similarity.similarity_percentage ??
+                                                                        similarity.similarityPercentage ??
+                                                                        0
+                                                                    ).toFixed(
+                                                                        2
+                                                                    )}
+                                                                    %
+                                                                </span>
+
+                                                            </div>
+
+                                                            <div className="similarity-score">
+
+                                                                <strong>
+                                                                    Status:
+                                                                </strong>
+
+                                                                <span>
+                                                                    {
+                                                                        similarity.status
+                                                                    }
+                                                                </span>
+
+                                                            </div>
+
+                                                            {similarity.matches
+                                                                ?.length >
+                                                                0 ? (
+                                                                <div className="similarity-matches">
+
+                                                                    <h5>
+                                                                        Matching
+                                                                        Manuscripts
+                                                                    </h5>
+
+                                                                    {similarity.matches.map(
+                                                                        (
+                                                                            match
+                                                                        ) => (
+                                                                            <div
+                                                                                className="similarity-match"
+                                                                                key={
+                                                                                    match.manuscript_id ??
+                                                                                    match.manuscriptId
+                                                                                }
+                                                                            >
+
+                                                                                <div>
+
+                                                                                    <strong>
+                                                                                        {
+                                                                                            match.title
+                                                                                        }
+                                                                                    </strong>
+
+                                                                                </div>
+
+                                                                                <span>
+                                                                                    {Number(
+                                                                                        match.similarity_percentage ??
+                                                                                        match.similarityPercentage ??
+                                                                                        0
+                                                                                    ).toFixed(
+                                                                                        2
+                                                                                    )}
+                                                                                    %
+                                                                                </span>
+
+                                                                            </div>
+                                                                        )
+                                                                    )}
+
+                                                                </div>
+                                                            ) : (
+                                                                <p>
+                                                                    No similar
+                                                                    manuscripts
+                                                                    were found.
+                                                                </p>
+                                                            )}
+
+                                                            {similarity.analyzedAt && (
+                                                                <p className="analysis-last-run">
+                                                                    Checked:{" "}
+                                                                    {new Date(
+                                                                        similarity.analyzedAt
+                                                                    ).toLocaleString()}
+                                                                </p>
+                                                            )}
+
+                                                        </>
+                                                    )}
+
+                                                </div>
+
+                                                {/* =================================================
+                                                ACTIONS
+                                            ================================================= */}
+
+                                                <div className="manuscript-actions">
+
+                                                    {(manuscript.status ===
+                                                        "DRAFT" ||
+                                                        manuscript.status ===
+                                                        "REVISION_REQUIRED") && (
+                                                            <>
+                                                                <button
+                                                                    className="secondary-button"
+                                                                    onClick={() =>
+                                                                        navigate(
+                                                                            `/author/manuscripts/${manuscript.id}/edit`
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    Edit
+                                                                </button>
+
+                                                                <button
+                                                                    className="primary-button"
+                                                                    onClick={() =>
+                                                                        handleSubmit(
+                                                                            manuscript.id
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    Submit
+                                                                </button>
+
+                                                                {manuscript.status ===
+                                                                    "DRAFT" && (
+                                                                        <button
+                                                                            className="danger-button"
+                                                                            onClick={() =>
+                                                                                handleDelete(
+                                                                                    manuscript.id
+                                                                                )
+                                                                            }
+                                                                        >
+                                                                            Delete
+                                                                        </button>
+                                                                    )}
+                                                            </>
+                                                        )}
+
+                                                    {manuscript.status ===
+                                                        "ACCEPTED" && (
+                                                            <span className="accepted-message">
+                                                                ✓ Manuscript
+                                                                Accepted
+                                                            </span>
+                                                        )}
+
+                                                    {manuscript.status ===
+                                                        "REJECTED" && (
+                                                            <span className="rejected-message">
+                                                                Manuscript
+                                                                Rejected
+                                                            </span>
+                                                        )}
+
+                                                </div>
+
+                                            </article>
+                                        );
+                                    }
+                                )}
+
+                            </div>
+                        )}
+
+                </section>
+
+            </main>
         </div>
     );
 }

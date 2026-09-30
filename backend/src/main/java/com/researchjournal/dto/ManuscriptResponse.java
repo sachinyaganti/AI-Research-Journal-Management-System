@@ -20,6 +20,11 @@ public class ManuscriptResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+    // PDF metadata
+    private String fileName;
+    private String fileType;
+    private Long fileSize;
+
     public ManuscriptResponse(
             Long id,
             String title,
@@ -31,18 +36,28 @@ public class ManuscriptResponse {
             String authorName,
             String authorEmail,
             LocalDateTime createdAt,
-            LocalDateTime updatedAt) {
+            LocalDateTime updatedAt,
+            String fileName,
+            String fileType,
+            Long fileSize) {
+
         this.id = id;
         this.title = title;
         this.abstractText = abstractText;
         this.keywords = keywords;
         this.category = category;
         this.status = status;
+
         this.authorId = authorId;
         this.authorName = authorName;
         this.authorEmail = authorEmail;
+
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
+
+        this.fileName = fileName;
+        this.fileType = fileType;
+        this.fileSize = fileSize;
     }
 
     public Long getId() {
@@ -87,5 +102,17 @@ public class ManuscriptResponse {
 
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public String getFileType() {
+        return fileType;
+    }
+
+    public Long getFileSize() {
+        return fileSize;
     }
 }

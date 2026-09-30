@@ -41,25 +41,39 @@ def analyze_similarity(
     request: SimilarityRequest,
 ) -> SimilarityResponse:
 
-    current_text = (
-        request.title
-        + " "
-        + request.abstractText
-    )
+    # Prefer the complete PDF text.
+    # Fall back to title + abstract if full text is unavailable.
+    if request.full_text.strip():
+
+        current_text = request.full_text
+
+    else:
+
+        current_text = (
+            request.title
+            + " "
+            + request.abstractText
+        )
 
     matches = []
 
     for candidate in request.candidates:
 
-        # Do not compare a manuscript with itself.
+        # Never compare a manuscript with itself.
         if candidate.manuscript_id == request.manuscript_id:
             continue
 
-        candidate_text = (
-            candidate.title
-            + " "
-            + candidate.abstractText
-        )
+        if candidate.full_text.strip():
+
+            candidate_text = candidate.full_text
+
+        else:
+
+            candidate_text = (
+                candidate.title
+                + " "
+                + candidate.abstractText
+            )
 
         similarity = calculate_similarity(
             current_text,
@@ -67,6 +81,7 @@ def analyze_similarity(
         )
 
         if similarity > 0:
+
             matches.append(
                 SimilarityMatch(
                     manuscript_id=candidate.manuscript_id,
@@ -81,6 +96,7 @@ def analyze_similarity(
     )
 
     if not matches:
+
         return SimilarityResponse(
             manuscript_id=request.manuscript_id,
             similarity_percentage=0.0,
@@ -88,13 +104,20 @@ def analyze_similarity(
             matches=[],
         )
 
-    highest_similarity = matches[0].similarity_percentage
+    highest_similarity = (
+        matches[0].similarity_percentage
+    )
 
     if highest_similarity >= 70:
+
         status = "HIGH_SIMILARITY"
+
     elif highest_similarity >= 40:
+
         status = "MODERATE_SIMILARITY"
+
     else:
+
         status = "LOW_SIMILARITY"
 
     return SimilarityResponse(
