@@ -16,7 +16,7 @@ public class AIAnalysisClient {
     public AIAnalysisClient() {
         this.restClient = RestClient
                 .builder()
-                .baseUrl("http://localhost:8000")
+                .baseUrl("http://localhost:8001")
                 .build();
     }
 
