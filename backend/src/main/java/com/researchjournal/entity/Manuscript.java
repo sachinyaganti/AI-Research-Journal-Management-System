@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+
 public class Manuscript {
 
     @Id
@@ -56,6 +57,10 @@ public class Manuscript {
 
     @Column(name = "file_size")
     private Long fileSize;
+
+    @Builder.Default
+@Column(nullable = false)
+private boolean screeningCompleted = false;
 
     @PrePersist
     protected void onCreate() {

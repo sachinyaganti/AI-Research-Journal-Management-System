@@ -135,7 +135,7 @@ public class ManuscriptService {
                 return manuscriptRepository
                                 .findByAuthor(author)
                                 .stream()
-                                .map(this::toResponse)
+                                .map(manuscript -> toResponse(manuscript))
                                 .toList();
         }
 
@@ -218,9 +218,13 @@ public class ManuscriptService {
                         throw new IllegalStateException(
                                         "Only draft or revision-required manuscripts can be submitted");
                 }
-
-                manuscript.setStatus(
-                                ManuscriptStatus.SUBMITTED);
+                if (manuscript.getFilePath() == null|| manuscript.getFilePath().isBlank()) {
+                        throw new IllegalStateException("A research paper PDF must be uploaded before submission");
+                }
+                if (!manuscript.isScreeningCompleted()) {
+                        throw new IllegalStateException("Pre-publication screening must be completed before submission");
+                }
+                manuscript.setStatus(ManuscriptStatus.SUBMITTED);
 
                 Manuscript submitted = manuscriptRepository.save(manuscript);
 
@@ -233,7 +237,7 @@ public class ManuscriptService {
                 return manuscriptRepository
                                 .findByStatus(status)
                                 .stream()
-                                .map(this::toResponse)
+                                .map(manuscript -> toResponse(manuscript))
                                 .toList();
         }
 

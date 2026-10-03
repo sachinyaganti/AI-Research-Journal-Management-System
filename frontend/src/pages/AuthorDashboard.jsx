@@ -33,6 +33,13 @@ function AuthorDashboard() {
         useState(null);
 
     // =========================================================
+    // PRE-PUBLICATION SCREENING
+    // =========================================================
+
+    const [screeningResults, setScreeningResults] = useState({});
+    const [screeningId, setScreeningId] = useState(null);
+
+    // =========================================================
     // PDF UPLOAD
     // =========================================================
 
@@ -596,6 +603,66 @@ function AuthorDashboard() {
             setCheckingSimilarityId(
                 null
             );
+        }
+    };
+
+    // =========================================================
+    // PRE-PUBLICATION SCREENING
+    // Runs similarity + AI-content + quality analysis together
+    // =========================================================
+
+    const handlePrePublicationScreening = async (
+        manuscriptId
+    ) => {
+        setError("");
+        setScreeningId(manuscriptId);
+
+        try {
+            const response = await fetch(
+                `${API_BASE_URL}/api/manuscripts/${manuscriptId}/screen`,
+                {
+                    method: "POST",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            const data = await response
+                .json()
+                .catch(() => ({}));
+
+            if (response.status === 401) {
+                logout();
+                return;
+            }
+
+            if (!response.ok) {
+                throw new Error(
+                    data.message ||
+                    "Failed to run pre-publication screening"
+                );
+            }
+
+            setScreeningResults(
+                (previous) => ({
+                    ...previous,
+                    [manuscriptId]: data,
+                })
+            );
+
+        } catch (err) {
+            console.error(
+                "Pre-publication screening error:",
+                err
+            );
+
+            setError(
+                err.message ||
+                "Failed to run pre-publication screening"
+            );
+        } finally {
+            setScreeningId(null);
         }
     };
 
@@ -1171,6 +1238,10 @@ function AuthorDashboard() {
 
                                         const similarity =
                                             similarityResults[
+                                            manuscript.id
+                                            ];
+                                        const screening =
+                                            screeningResults[
                                             manuscript.id
                                             ];
 
@@ -1863,7 +1934,400 @@ function AuthorDashboard() {
                                                         )}
 
                                                 </div>
+                                                {/* =================================================
+    PRE-PUBLICATION SCREENING
+================================================= */}
 
+                                                <div className="screening-section">
+
+                                                    <div className="screening-header">
+
+                                                        <div>
+                                                            <h4>
+                                                                Pre-Publication Screening
+                                                            </h4>
+
+                                                            <p>
+                                                                Run similarity, AI-content and
+                                                                manuscript quality checks together.
+                                                            </p>
+                                                        </div>
+
+                                                        <button
+                                                            className="primary-button"
+                                                            onClick={() =>
+                                                                handlePrePublicationScreening(
+                                                                    manuscript.id
+                                                                )
+                                                            }
+                                                            disabled={
+                                                                screeningId === manuscript.id ||
+                                                                !manuscript.fileName
+                                                            }
+                                                        >
+                                                            {screeningId === manuscript.id
+                                                                ? "Screening..."
+                                                                : "Run Screening"}
+                                                        </button>
+
+                                                    </div>
+
+                                                    {!manuscript.fileName && (
+                                                        <div className="analysis-placeholder">
+                                                            Upload a research paper PDF before
+                                                            running pre-publication screening.
+                                                        </div>
+                                                    )}
+
+                                                    {screeningId === manuscript.id && (
+                                                        <div className="analysis-placeholder">
+
+                                                            <span className="analysis-spinner">
+                                                                ⟳
+                                                            </span>
+
+                                                            {" "}
+                                                            Running pre-publication screening...
+                                                        </div>
+                                                    )}
+
+                                                    {screening && (
+                                                        <div className="screening-results">
+
+                                                            <div className="screening-status">
+                                                                <strong>
+                                                                    Screening Status:
+                                                                </strong>
+
+                                                                <span>
+                                                                    {screening.screeningStatus}
+                                                                </span>
+                                                            </div>
+
+                                                            {/* SIMILARITY */}
+
+                                                            {screening.similarity && (
+                                                                <div className="screening-result-card">
+
+                                                                    <h5>
+                                                                        Similarity Screening
+                                                                    </h5>
+
+                                                                    <div className="screening-metric">
+
+                                                                        <strong>
+                                                                            Similarity:
+                                                                        </strong>
+
+                                                                        <span>
+                                                                            {Number(
+                                                                                screening.similarity
+                                                                                    .similarity_percentage ??
+                                                                                screening.similarity
+                                                                                    .similarityPercentage ??
+                                                                                0
+                                                                            ).toFixed(2)}
+                                                                            %
+                                                                        </span>
+
+                                                                    </div>
+
+                                                                    <div className="screening-metric">
+
+                                                                        <strong>
+                                                                            Status:
+                                                                        </strong>
+
+                                                                        <span>
+                                                                            {screening.similarity.status}
+                                                                        </span>
+
+                                                                    </div>
+
+                                                                    {screening.similarity.matches
+                                                                        ?.length > 0 && (
+                                                                            <div className="screening-matches">
+
+                                                                                <strong>
+                                                                                    Matching Manuscripts
+                                                                                </strong>
+
+                                                                                <ul>
+                                                                                    {screening.similarity.matches.map(
+                                                                                        (match) => (
+                                                                                            <li
+                                                                                                key={
+                                                                                                    match.manuscript_id ??
+                                                                                                    match.manuscriptId
+                                                                                                }
+                                                                                            >
+                                                                                                {match.title} —{" "}
+                                                                                                {Number(
+                                                                                                    match.similarity_percentage ??
+                                                                                                    match.similarityPercentage ??
+                                                                                                    0
+                                                                                                ).toFixed(2)}
+                                                                                                %
+                                                                                            </li>
+                                                                                        )
+                                                                                    )}
+                                                                                </ul>
+
+                                                                            </div>
+                                                                        )}
+
+                                                                </div>
+                                                            )}
+
+                                                            {/* AI CONTENT */}
+
+                                                            {screening.aiContent && (
+                                                                <div className="screening-result-card">
+
+                                                                    <h5>
+                                                                        AI-Content Assessment
+                                                                    </h5>
+
+                                                                    <div className="screening-metric">
+                                                                        <strong>
+                                                                            AI-Content Indicator:
+                                                                        </strong>
+
+                                                                        <span>
+                                                                            {Number(
+                                                                                screening.aiContent
+                                                                                    .aiContentIndicator ?? 0
+                                                                            ).toFixed(1)}
+                                                                            %
+                                                                        </span>
+                                                                    </div>
+
+                                                                    <div className="screening-metric">
+                                                                        <strong>
+                                                                            Human-Writing Indicator:
+                                                                        </strong>
+
+                                                                        <span>
+                                                                            {Number(
+                                                                                screening.aiContent
+                                                                                    .humanWritingIndicator ?? 0
+                                                                            ).toFixed(1)}
+                                                                            %
+                                                                        </span>
+                                                                    </div>
+
+                                                                    <div className="screening-metric">
+                                                                        <strong>
+                                                                            Confidence:
+                                                                        </strong>
+
+                                                                        <span>
+                                                                            {screening.aiContent.confidence}
+                                                                        </span>
+                                                                    </div>
+
+                                                                    {screening.aiContent.signals && (
+                                                                        <div className="screening-text-block">
+
+                                                                            <strong>
+                                                                                Detected Signals
+                                                                            </strong>
+
+                                                                            <p>
+                                                                                {screening.aiContent.signals}
+                                                                            </p>
+
+                                                                        </div>
+                                                                    )}
+
+                                                                    {screening.aiContent.explanation && (
+                                                                        <div className="screening-text-block">
+
+                                                                            <strong>
+                                                                                Explanation
+                                                                            </strong>
+
+                                                                            <p>
+                                                                                {screening.aiContent.explanation}
+                                                                            </p>
+
+                                                                        </div>
+                                                                    )}
+
+                                                                </div>
+                                                            )}
+
+                                                            {/* QUALITY */}
+
+                                                            {screening.qualityAnalysis && (
+                                                                <div className="screening-result-card">
+
+                                                                    <h5>
+                                                                        Manuscript Quality Analysis
+                                                                    </h5>
+
+                                                                    <div className="screening-quality-grid">
+
+                                                                        <div>
+                                                                            <strong>
+                                                                                Abstract
+                                                                            </strong>
+                                                                            <span>
+                                                                                {
+                                                                                    screening
+                                                                                        .qualityAnalysis
+                                                                                        .abstract_quality ??
+                                                                                    screening
+                                                                                        .qualityAnalysis
+                                                                                        .abstractQuality
+                                                                                }
+                                                                            </span>
+                                                                        </div>
+
+                                                                        <div>
+                                                                            <strong>
+                                                                                Methodology
+                                                                            </strong>
+                                                                            <span>
+                                                                                {
+                                                                                    screening
+                                                                                        .qualityAnalysis
+                                                                                        .methodology_quality ??
+                                                                                    screening
+                                                                                        .qualityAnalysis
+                                                                                        .methodologyQuality
+                                                                                }
+                                                                            </span>
+                                                                        </div>
+
+                                                                        <div>
+                                                                            <strong>
+                                                                                Results
+                                                                            </strong>
+                                                                            <span>
+                                                                                {
+                                                                                    screening
+                                                                                        .qualityAnalysis
+                                                                                        .results_quality ??
+                                                                                    screening
+                                                                                        .qualityAnalysis
+                                                                                        .resultsQuality
+                                                                                }
+                                                                            </span>
+                                                                        </div>
+
+                                                                        <div>
+                                                                            <strong>
+                                                                                Conclusion
+                                                                            </strong>
+                                                                            <span>
+                                                                                {
+                                                                                    screening
+                                                                                        .qualityAnalysis
+                                                                                        .conclusion_quality ??
+                                                                                    screening
+                                                                                        .qualityAnalysis
+                                                                                        .conclusionQuality
+                                                                                }
+                                                                            </span>
+                                                                        </div>
+
+                                                                        <div>
+                                                                            <strong>
+                                                                                Writing
+                                                                            </strong>
+                                                                            <span>
+                                                                                {
+                                                                                    screening
+                                                                                        .qualityAnalysis
+                                                                                        .writing_quality ??
+                                                                                    screening
+                                                                                        .qualityAnalysis
+                                                                                        .writingQuality
+                                                                                }
+                                                                            </span>
+                                                                        </div>
+
+                                                                        <div>
+                                                                            <strong>
+                                                                                Relevance
+                                                                            </strong>
+                                                                            <span>
+                                                                                {
+                                                                                    screening
+                                                                                        .qualityAnalysis
+                                                                                        .relevance
+                                                                                }
+                                                                            </span>
+                                                                        </div>
+
+                                                                    </div>
+
+                                                                    {screening.qualityAnalysis
+                                                                        .missing_sections
+                                                                        ?.length > 0 && (
+                                                                            <div className="screening-text-block">
+
+                                                                                <strong>
+                                                                                    Missing Sections
+                                                                                </strong>
+
+                                                                                <ul>
+                                                                                    {screening.qualityAnalysis
+                                                                                        .missing_sections
+                                                                                        .map(
+                                                                                            (
+                                                                                                section,
+                                                                                                index
+                                                                                            ) => (
+                                                                                                <li key={index}>
+                                                                                                    {section}
+                                                                                                </li>
+                                                                                            )
+                                                                                        )}
+                                                                                </ul>
+
+                                                                            </div>
+                                                                        )}
+
+                                                                    {screening.qualityAnalysis
+                                                                        .suggestions
+                                                                        ?.length > 0 && (
+                                                                            <div className="screening-text-block">
+
+                                                                                <strong>
+                                                                                    Improvement Suggestions
+                                                                                </strong>
+
+                                                                                <ol>
+                                                                                    {screening.qualityAnalysis
+                                                                                        .suggestions
+                                                                                        .map(
+                                                                                            (
+                                                                                                suggestion,
+                                                                                                index
+                                                                                            ) => (
+                                                                                                <li key={index}>
+                                                                                                    {suggestion}
+                                                                                                </li>
+                                                                                            )
+                                                                                        )}
+                                                                                </ol>
+
+                                                                            </div>
+                                                                        )}
+
+                                                                </div>
+                                                            )}
+
+                                                            <p className="analysis-last-run">
+                                                                {screening.message}
+                                                            </p>
+
+                                                        </div>
+                                                    )}
+
+                                                </div>
                                             </article>
                                         );
                                     }
@@ -1877,6 +2341,8 @@ function AuthorDashboard() {
             </main>
         </div>
     );
+
 }
+
 
 export default AuthorDashboard;

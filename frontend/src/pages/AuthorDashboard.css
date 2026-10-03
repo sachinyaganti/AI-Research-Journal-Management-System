@@ -573,6 +573,298 @@
 }
 
 /* =========================================================
+   PRE-PUBLICATION SCREENING
+========================================================= */
+
+.screening-section {
+    margin-top: 22px;
+    padding: 20px;
+
+    border: 1px solid #353842;
+    border-radius: 12px;
+
+    background: #181a21;
+}
+
+.screening-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    gap: 16px;
+    margin-bottom: 18px;
+}
+
+.screening-header h4 {
+    margin: 0 0 6px;
+    font-size: 17px;
+}
+
+.screening-header p {
+    margin: 0;
+    font-size: 13px;
+    opacity: 0.65;
+}
+
+/* =========================================================
+   SCREENING STATUS
+========================================================= */
+
+.screening-status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    margin-bottom: 18px;
+    padding: 12px 14px;
+
+    border: 1px solid #30323b;
+    border-radius: 9px;
+
+    background: #101116;
+}
+
+.screening-status strong {
+    font-size: 13px;
+}
+
+.screening-status span {
+    padding: 5px 9px;
+
+    border-radius: 999px;
+
+    background: #193d2a;
+    color: #72e3a1;
+
+    font-size: 11px;
+    font-weight: 700;
+}
+
+/* =========================================================
+   SCREENING RESULTS
+========================================================= */
+
+.screening-results {
+    margin-top: 18px;
+}
+
+.screening-result-card {
+    margin-top: 14px;
+    padding: 16px;
+
+    border: 1px solid #30323b;
+    border-radius: 10px;
+
+    background: #101116;
+}
+
+.screening-result-card h5 {
+    margin: 0 0 14px;
+
+    font-size: 14px;
+}
+
+/* =========================================================
+   SCREENING METRICS
+========================================================= */
+
+.screening-metric {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 9px 0;
+
+    border-bottom: 1px solid #252730;
+}
+
+.screening-metric:last-child {
+    border-bottom: none;
+}
+
+.screening-metric strong {
+    font-size: 13px;
+    opacity: 0.7;
+}
+
+.screening-metric span {
+    font-size: 14px;
+    font-weight: 700;
+}
+
+/* =========================================================
+   SCREENING MATCHES
+========================================================= */
+
+.screening-matches {
+    margin-top: 16px;
+}
+
+.screening-matches>strong {
+    display: block;
+
+    margin-bottom: 10px;
+
+    font-size: 13px;
+}
+
+.screening-matches ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.screening-matches li {
+    margin-bottom: 8px;
+
+    line-height: 1.5;
+
+    font-size: 13px;
+}
+
+/* =========================================================
+   AI CONTENT / TEXT BLOCKS
+========================================================= */
+
+.screening-text-block {
+    margin-top: 16px;
+    padding: 12px 14px;
+
+    border-left: 3px solid #555a68;
+    border-radius: 6px;
+
+    background: #181a21;
+}
+
+.screening-text-block strong {
+    display: block;
+
+    margin-bottom: 7px;
+
+    font-size: 12px;
+    opacity: 0.75;
+}
+
+.screening-text-block p {
+    margin: 0;
+
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.screening-text-block ul,
+.screening-text-block ol {
+    margin: 8px 0 0;
+    padding-left: 22px;
+}
+
+.screening-text-block li {
+    margin-bottom: 7px;
+
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+/* =========================================================
+   SCREENING QUALITY GRID
+========================================================= */
+
+.screening-quality-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 10px;
+
+    margin-bottom: 16px;
+}
+
+.screening-quality-grid>div {
+    min-width: 0;
+
+    padding: 12px;
+
+    border: 1px solid #30323b;
+    border-radius: 8px;
+
+    background: #181a21;
+}
+
+.screening-quality-grid strong {
+    display: block;
+
+    margin-bottom: 7px;
+
+    font-size: 11px;
+    opacity: 0.6;
+}
+
+.screening-quality-grid span {
+    display: block;
+
+    font-size: 13px;
+    font-weight: 700;
+
+    word-break: break-word;
+}
+
+/* =========================================================
+   SCREENING LAST RUN
+========================================================= */
+
+.screening-section .analysis-last-run {
+    margin-top: 18px;
+}
+
+/* =========================================================
+   SCREENING RESPONSIVE
+========================================================= */
+
+@media (max-width: 900px) {
+
+    .screening-quality-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .screening-header {
+        align-items: flex-start;
+    }
+}
+
+@media (max-width: 600px) {
+
+    .screening-section {
+        padding: 16px;
+    }
+
+    .screening-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .screening-header .primary-button {
+        width: 100%;
+    }
+
+    .screening-quality-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .screening-status {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .screening-metric {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+/* =========================================================
    BUTTONS
 ========================================================= */
 

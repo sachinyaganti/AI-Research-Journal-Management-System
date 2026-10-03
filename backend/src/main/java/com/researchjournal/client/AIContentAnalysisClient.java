@@ -16,7 +16,7 @@ public class AIContentAnalysisClient {
     public AIContentAnalysisClient() {
         this.restClient = RestClient
                 .builder()
-                .baseUrl("http://localhost:8001")
+                .baseUrl("http://localhost:8000")
                 .build();
     }
 
