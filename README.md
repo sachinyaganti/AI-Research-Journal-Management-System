@@ -112,12 +112,13 @@ The system includes a dedicated **Python FastAPI AI service** that is separated 
 
 The architecture provides a foundation for intelligent research-paper processing, including:
 
-* 📄 Research-paper analysis
-* 📝 Text processing
-* 🔑 Keyword extraction
-* 📊 Paper analysis
-* 🔎 Similarity analysis
-* 👥 AI-assisted reviewer recommendation
+* 📄 PDF screening and text extraction
+* 🔬 Manuscript analysis
+* 🤖 AI-generated-content analysis
+* 🔎 Similarity analysis with similarity reporting
+* 📝 Structured AI analysis responses
+* 🧩 Modular FastAPI routes and services
+* 👥 AI-assisted reviewer recommendation (planned)
 
 The AI service communicates independently with the backend, allowing AI capabilities to evolve without tightly coupling them to the core application.
 
@@ -653,9 +654,9 @@ Private credentials
 | 📜 Decision History           |   ✅ Implemented   |
 | ✅ Editorial Decisions         |   ✅ Implemented   |
 | 📖 Publication Workflow       |   ✅ Implemented   |
-| 🤖 FastAPI AI Service         | 🚧 In Development |
-| 🧠 AI Paper Analysis          | 🚧 In Development |
-| 👥 AI Reviewer Recommendation | 🚧 In Development |
+| 🤖 FastAPI AI Service         |   ✅ Implemented   |
+| 🧠 AI Paper Analysis          |   ✅ Implemented   |
+| 👥 AI Reviewer Recommendation | 🚧 Planned        |
 | ☁️ Cloud Deployment           |     🚧 Planned    |
 
 ---
@@ -807,3 +808,57 @@ This project is developed for **academic and educational purposes**.
 **Building a smarter digital workflow for academic publishing.**
 
 </p>
+
+---
+
+# 🧠 Current AI Service Modules
+
+The repository now separates AI/document processing into dedicated FastAPI routes, models, and services.
+
+| Module | Purpose |
+|---|---|
+| PDF Screening | Accepts PDF uploads and performs document-level screening |
+| PDF Text Extraction | Extracts text and page information from research papers |
+| Manuscript Analysis | Produces structured manuscript analysis |
+| AI Content Analysis | Provides an AI-content assessment for manuscript text |
+| Similarity Analysis | Calculates and reports similarity information between supplied content |
+
+### AI request flow
+
+~~~text
+Research Paper PDF
+      ↓
+PDF Screening / Text Extraction
+      ↓
+Manuscript Analysis
+      ├── AI Content Analysis
+      └── Similarity Analysis
+      ↓
+FastAPI Response
+      ↓
+Spring Boot Integration
+      ↓
+Role-based Dashboard
+~~~
+
+> AI analysis is decision-support functionality. Editorial and peer-review decisions remain human responsibilities.
+
+# 🔐 Security & Configuration
+
+The backend uses Spring Security, JWT authentication, BCrypt password hashing, and role-based authorization. AI processing is exposed through a separate FastAPI service.
+
+Never commit database passwords, JWT secrets, API keys, `.env` files, or other private credentials.
+
+# 🧪 Testing Focus
+
+Recommended validation areas include authentication, role-based access, manuscript submission, PDF upload, reviewer assignment, review submission, editorial decisions, revision workflows, PDF extraction, manuscript analysis, AI-content analysis, similarity analysis, and backend-to-AI-service communication.
+
+# 🚀 Recommended Next Steps
+
+1. Add automated unit and integration tests for core workflows.
+2. Add Docker support for PostgreSQL, Spring Boot, frontend, and FastAPI.
+3. Add CI/CD with GitHub Actions.
+4. Improve semantic similarity and reviewer recommendation models.
+5. Add email notifications and workflow reminders.
+6. Add production logging, monitoring, and audit trails.
+7. Deploy the complete multi-service system to a cloud environment.
