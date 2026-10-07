@@ -137,6 +137,8 @@ The project contains a dedicated **FastAPI AI service** instead of embedding AI 
 | 🧠 LLM Analysis | Provides the AI/LLM processing layer used by manuscript analysis |
 | 🔗 Backend AI Clients | Spring Boot clients communicate with the FastAPI service |
 
+> **Implementation note:** The current similarity engine uses normalized word-set overlap (Jaccard similarity), not an embedding-based semantic similarity model. Results are therefore lexical similarity indicators and should be interpreted accordingly.
+
 ### AI processing flow
 
 ```text
@@ -467,7 +469,7 @@ This keeps revisions connected to the original manuscript workflow and supports 
 | Pydantic | Request/response validation |
 | Groq | LLM API integration |
 | python-dotenv | Environment configuration |
-| pypdf / PDF processing | Document text extraction |
+| pypdf | PDF text extraction |
 
 ## Database
 
