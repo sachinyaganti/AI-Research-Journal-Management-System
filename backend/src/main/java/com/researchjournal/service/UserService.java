@@ -55,7 +55,7 @@ public class UserService {
                 .fullName(request.getFullName())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
-                .role(request.getRole())
+                .role(com.researchjournal.entity.Role.AUTHOR)
                 .active(true)
                 .build();
 
