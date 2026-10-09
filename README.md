@@ -138,6 +138,8 @@ The project contains a dedicated **FastAPI AI service** instead of embedding AI 
 | 🔗 Backend AI Clients | Spring Boot clients communicate with the FastAPI service |
 
 > **Implementation note:** The current similarity engine uses normalized word-set overlap (Jaccard similarity), not an embedding-based semantic similarity model. Results are therefore lexical similarity indicators and should be interpreted accordingly.
+>
+> The manuscript-analysis LLM layer currently uses Groq with the `openai/gpt-oss-20b` model and requests structured JSON output for abstract quality, methodology, results, conclusion, writing quality, relevance, missing sections, writing issues, and suggestions.
 
 ### AI processing flow
 
@@ -711,14 +713,16 @@ pip install -r requirements.txt
 Start the service:
 
 ```bash
-uvicorn app.main:app --reload
+uvicorn app.main:app --reload --port 8001
 ```
 
-The AI service will normally be available at:
+The AI service is configured for the Spring Boot clients at:
 
 ```text
-http://localhost:8000
+http://localhost:8001
 ```
+
+Start it on port `8001` so the backend AI clients can communicate with it.
 
 Health check:
 
@@ -735,6 +739,8 @@ http://localhost:8000/docs
 ---
 
 # 🔗 Service Communication
+
+> **Important local configuration:** The Spring Boot AI clients currently use `http://localhost:8001` as their FastAPI base URL. If you change the AI-service port or host, update the corresponding client configuration in `backend/src/main/java/com/researchjournal/client/` as well.
 
 The application uses the following local development services:
 
