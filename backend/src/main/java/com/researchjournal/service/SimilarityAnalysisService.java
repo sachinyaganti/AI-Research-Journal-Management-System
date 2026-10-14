@@ -8,6 +8,7 @@ import com.researchjournal.repository.ManuscriptRepository;
 import com.researchjournal.repository.SimilarityAnalysisRepository;
 import org.springframework.stereotype.Service;
 import com.researchjournal.dto.SimilarityAnalysisResponse;
+import com.researchjournal.entity.Role;
 import com.researchjournal.entity.User;
 import org.springframework.security.access.AccessDeniedException;
 
@@ -42,7 +43,10 @@ public class SimilarityAnalysisService {
                                 .orElseThrow(() -> new IllegalArgumentException(
                                                 "Manuscript not found"));
 
-                if (!manuscript.getAuthor().getId().equals(currentUser.getId())) {
+                boolean isAuthor = manuscript.getAuthor().getId().equals(currentUser.getId());
+                boolean isEditorOrAdmin = currentUser.getRole() == Role.EDITOR || currentUser.getRole() == Role.ADMIN;
+
+                if (!isAuthor && !isEditorOrAdmin) {
                         throw new AccessDeniedException(
                                         "You are not authorized to analyze this manuscript");
                 }
@@ -59,11 +63,28 @@ public class SimilarityAnalysisService {
                                 .toList();
 
                 List<SimilarityAnalysisClient.SimilarityCandidate> candidates = otherManuscripts.stream()
-                                .map(candidate -> new SimilarityAnalysisClient.SimilarityCandidate(
-                                                candidate.getId(),
-                                                candidate.getTitle(),
-                                                candidate.getAbstractText(),
-                                                ""))
+                                .map(candidate -> {
+                                        String candidateFullText = "";
+                                        if (candidate.getFilePath() != null) {
+                                                try {
+                                                        java.nio.file.Path p = java.nio.file.Paths.get(candidate.getFilePath());
+                                                        if (java.nio.file.Files.exists(p)) {
+                                                                byte[] bytes = java.nio.file.Files.readAllBytes(p);
+                                                                var extracted = pdfExtractionClient.extractText(bytes, candidate.getFileName());
+                                                                if (extracted != null && extracted.getExtractedText() != null) {
+                                                                        candidateFullText = extracted.getExtractedText();
+                                                                }
+                                                        }
+                                                } catch (Exception ignored) {
+                                                        // Graceful fallback to abstract/title if extraction fails
+                                                }
+                                        }
+                                        return new SimilarityAnalysisClient.SimilarityCandidate(
+                                                        candidate.getId(),
+                                                        candidate.getTitle(),
+                                                        candidate.getAbstractText(),
+                                                        candidateFullText);
+                                })
                                 .toList();
                 String fullText = "";
 
@@ -122,7 +143,10 @@ public class SimilarityAnalysisService {
                                 .orElseThrow(() -> new IllegalArgumentException(
                                                 "Manuscript not found"));
 
-                if (!manuscript.getAuthor().getId().equals(currentUser.getId())) {
+                boolean isAuthor = manuscript.getAuthor().getId().equals(currentUser.getId());
+                boolean isEditorOrAdmin = currentUser.getRole() == Role.EDITOR || currentUser.getRole() == Role.ADMIN;
+
+                if (!isAuthor && !isEditorOrAdmin) {
                         throw new AccessDeniedException(
                                         "You are not authorized to view this similarity analysis");
                 }

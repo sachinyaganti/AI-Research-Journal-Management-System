@@ -11,4 +11,6 @@ public class EditorDecisionRequest {
 
     @NotNull(message = "Decision is required")
     private EditorDecision decision;
+
+    private String comments;
 }

@@ -28,6 +28,18 @@ public class Review {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String comments;
 
+    @Column(columnDefinition = "TEXT")
+    private String commentsToAuthor;
+
+    @Column(columnDefinition = "TEXT")
+    private String confidentialCommentsToEditor;
+
+    private Integer clarityRating;
+
+    private Integer originalityRating;
+
+    private Integer methodologyRating;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ReviewRecommendation recommendation;

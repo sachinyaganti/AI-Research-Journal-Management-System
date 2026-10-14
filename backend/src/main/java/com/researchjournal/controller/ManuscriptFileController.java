@@ -29,13 +29,16 @@ public class ManuscriptFileController {
 
         private final ManuscriptFileService manuscriptFileService;
         private final ManuscriptRepository manuscriptRepository;
+        private final com.researchjournal.repository.ReviewerAssignmentRepository reviewerAssignmentRepository;
 
         public ManuscriptFileController(
                         ManuscriptFileService manuscriptFileService,
-                        ManuscriptRepository manuscriptRepository) {
+                        ManuscriptRepository manuscriptRepository,
+                        com.researchjournal.repository.ReviewerAssignmentRepository reviewerAssignmentRepository) {
 
                 this.manuscriptFileService = manuscriptFileService;
                 this.manuscriptRepository = manuscriptRepository;
+                this.reviewerAssignmentRepository = reviewerAssignmentRepository;
         }
 
         @PostMapping("/{manuscriptId}/file")
@@ -93,17 +96,21 @@ public class ManuscriptFileController {
                         @PathVariable Long manuscriptId,
                         Authentication authentication) throws IOException {
 
-                User currentUser = (User) authentication.getPrincipal();
+                User currentUser = authentication != null ? (User) authentication.getPrincipal() : null;
 
                 Manuscript manuscript = manuscriptRepository
                                 .findById(manuscriptId)
                                 .orElseThrow(() -> new IllegalArgumentException(
                                                 "Manuscript not found"));
 
-                if (!manuscript.getAuthor()
-                                .getId()
-                                .equals(currentUser.getId())) {
+                boolean isAuthor = currentUser != null && manuscript.getAuthor().getId().equals(currentUser.getId());
+                boolean isEditorOrAdmin = currentUser != null && (
+                                currentUser.getRole() == com.researchjournal.entity.Role.EDITOR
+                                || currentUser.getRole() == com.researchjournal.entity.Role.ADMIN);
+                boolean isAssignedReviewer = currentUser != null && reviewerAssignmentRepository.existsByManuscriptAndReviewer(manuscript, currentUser);
+                boolean isPublished = manuscript.getStatus() == com.researchjournal.entity.ManuscriptStatus.PUBLISHED;
 
+                if (!isAuthor && !isEditorOrAdmin && !isAssignedReviewer && !isPublished) {
                         throw new AccessDeniedException(
                                         "You are not authorized to access this manuscript file");
                 }

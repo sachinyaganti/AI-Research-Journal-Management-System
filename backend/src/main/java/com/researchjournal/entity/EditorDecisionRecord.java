@@ -30,6 +30,9 @@ public class EditorDecisionRecord {
     @Column(nullable = false)
     private EditorDecision decision;
 
+    @Column(columnDefinition = "TEXT")
+    private String comments;
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime decidedAt;
 

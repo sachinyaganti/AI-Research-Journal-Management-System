@@ -174,8 +174,9 @@ public class AIContentAnalysisService {
                 .equals(currentUser.getId());
 
         boolean isEditor = currentUser.getRole().name().equals("EDITOR");
+        boolean isAdmin = currentUser.getRole().name().equals("ADMIN");
 
-        if (!isOwner && !isEditor) {
+        if (!isOwner && !isEditor && !isAdmin) {
             throw new RuntimeException(
                     "You are not authorized to analyze this manuscript");
         }

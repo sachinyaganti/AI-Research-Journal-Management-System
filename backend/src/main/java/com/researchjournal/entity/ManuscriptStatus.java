@@ -12,5 +12,7 @@ public enum ManuscriptStatus {
 
     ACCEPTED,
 
-    REJECTED
+    REJECTED,
+
+    PUBLISHED
 }

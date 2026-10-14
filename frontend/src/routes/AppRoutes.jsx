@@ -3,6 +3,7 @@ import { Routes, Route } from "react-router-dom";
 import HomePage from "../pages/HomePage";
 import LoginPage from "../pages/LoginPage";
 import RegisterPage from "../pages/RegisterPage";
+import PublishedPapersPage from "../pages/PublishedPapersPage";
 import NotFoundPage from "../pages/NotFoundPage";
 import EditorDashboard from "../pages/EditorDashboard";
 import ProtectedRoute from "./ProtectedRoute";
@@ -18,6 +19,7 @@ function AppRoutes() {
     return (
         <Routes>
             <Route path="/" element={<HomePage />} />
+            <Route path="/publications" element={<PublishedPapersPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route

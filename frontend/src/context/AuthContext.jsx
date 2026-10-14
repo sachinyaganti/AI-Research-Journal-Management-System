@@ -29,9 +29,14 @@ function AuthProvider({ children }) {
         }
     }, [user]);
 
-    const login = (loginResponse) => {
-        setToken(loginResponse.token);
-        setUser(loginResponse.user);
+    const login = (resOrToken, maybeUser) => {
+        if (maybeUser) {
+            setToken(resOrToken);
+            setUser(maybeUser);
+        } else if (resOrToken) {
+            setToken(resOrToken.token);
+            setUser(resOrToken.user);
+        }
     };
 
     const logout = () => {

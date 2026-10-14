@@ -58,6 +58,106 @@ function AuthorDashboard() {
     const [openingPdfId, setOpeningPdfId] = useState(null);
 
     // =========================================================
+    // REVISIONS & DECISION FEEDBACK
+    // =========================================================
+
+    const [revisionModalManuscript, setRevisionModalManuscript] = useState(null);
+    const [revisionFile, setRevisionFile] = useState(null);
+    const [responseNotes, setResponseNotes] = useState("");
+    const [submittingRevision, setSubmittingRevision] = useState(false);
+    const [revisionError, setRevisionError] = useState("");
+
+    const [historyModalManuscript, setHistoryModalManuscript] = useState(null);
+    const [revisionHistory, setRevisionHistory] = useState([]);
+    const [loadingHistory, setLoadingHistory] = useState(false);
+
+    const [feedbackModalManuscript, setFeedbackModalManuscript] = useState(null);
+    const [decisionRecord, setDecisionRecord] = useState(null);
+    const [manuscriptReviews, setManuscriptReviews] = useState([]);
+    const [loadingFeedback, setLoadingFeedback] = useState(false);
+
+    const handleOpenFeedbackModal = async (manuscript) => {
+        setFeedbackModalManuscript(manuscript);
+        setLoadingFeedback(true);
+        setDecisionRecord(null);
+        setManuscriptReviews([]);
+        try {
+            const [decRes, revRes] = await Promise.all([
+                fetch(`${API_BASE_URL}/api/manuscripts/${manuscript.id}/decision`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                }),
+                fetch(`${API_BASE_URL}/api/manuscripts/${manuscript.id}/reviews`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                })
+            ]);
+            if (decRes.ok) {
+                const decData = await decRes.json();
+                setDecisionRecord(decData);
+            }
+            if (revRes.ok) {
+                const revData = await revRes.json();
+                setManuscriptReviews(Array.isArray(revData) ? revData : []);
+            }
+        } catch (e) {
+            console.error("Failed to fetch decision feedback:", e);
+        } finally {
+            setLoadingFeedback(false);
+        }
+    };
+
+    const handleOpenHistoryModal = async (manuscript) => {
+        setHistoryModalManuscript(manuscript);
+        setLoadingHistory(true);
+        setRevisionHistory([]);
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/manuscripts/${manuscript.id}/revisions`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setRevisionHistory(Array.isArray(data) ? data : []);
+            }
+        } catch (e) {
+            console.error("Failed to fetch revision history:", e);
+        } finally {
+            setLoadingHistory(false);
+        }
+    };
+
+    const handleSubmitRevision = async (e) => {
+        e.preventDefault();
+        if (!revisionModalManuscript || !revisionFile) {
+            setRevisionError("Please select a revised PDF file.");
+            return;
+        }
+        setSubmittingRevision(true);
+        setRevisionError("");
+        try {
+            const formData = new FormData();
+            formData.append("file", revisionFile);
+            formData.append("responseNotes", responseNotes);
+
+            const res = await fetch(`${API_BASE_URL}/api/manuscripts/${revisionModalManuscript.id}/revisions`, {
+                method: "POST",
+                headers: { Authorization: `Bearer ${token}` },
+                body: formData
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                throw new Error(data.message || "Failed to submit revision");
+            }
+            setRevisionModalManuscript(null);
+            setRevisionFile(null);
+            setResponseNotes("");
+            await fetchManuscripts();
+        } catch (err) {
+            setRevisionError(err.message || "Failed to submit revision");
+        } finally {
+            setSubmittingRevision(false);
+        }
+    };
+
+    // =========================================================
     // FETCH MANUSCRIPTS
     // =========================================================
 
@@ -1399,6 +1499,107 @@ function AuthorDashboard() {
                                                 </div>
 
                                                 {/* =================================================
+                                                    EDITORIAL DECISION & REVISION WORKFLOW
+                                                ================================================= */}
+                                                <div style={{
+                                                    margin: "16px 0",
+                                                    padding: "16px 20px",
+                                                    borderRadius: "10px",
+                                                    background: manuscript.status === "REVISION_REQUIRED"
+                                                        ? "rgba(245, 158, 11, 0.1)"
+                                                        : manuscript.status === "PUBLISHED"
+                                                        ? "rgba(16, 185, 129, 0.1)"
+                                                        : manuscript.status === "ACCEPTED"
+                                                        ? "rgba(99, 102, 241, 0.1)"
+                                                        : "rgba(255, 255, 255, 0.03)",
+                                                    border: `1px solid ${
+                                                        manuscript.status === "REVISION_REQUIRED"
+                                                            ? "rgba(245, 158, 11, 0.3)"
+                                                            : manuscript.status === "PUBLISHED"
+                                                            ? "rgba(16, 185, 129, 0.3)"
+                                                            : manuscript.status === "ACCEPTED"
+                                                            ? "rgba(99, 102, 241, 0.3)"
+                                                            : "rgba(255, 255, 255, 0.06)"
+                                                    }`
+                                                }}>
+                                                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "10px", marginBottom: "10px" }}>
+                                                        <h4 style={{ margin: 0, fontSize: "1rem", color: "#fff" }}>
+                                                            Editorial Status & Peer-Review Actions
+                                                        </h4>
+                                                        <span className={`badge ${
+                                                            manuscript.status === "PUBLISHED" || manuscript.status === "ACCEPTED"
+                                                                ? "badge-accepted"
+                                                                : manuscript.status === "REVISION_REQUIRED"
+                                                                ? "badge-revision"
+                                                                : "badge-submitted"
+                                                        }`}>
+                                                            {manuscript.status.replaceAll("_", " ")}
+                                                        </span>
+                                                    </div>
+
+                                                    {manuscript.status === "PUBLISHED" && (
+                                                        <div style={{ fontSize: "0.88rem", color: "#6ee7b7", marginBottom: "12px" }}>
+                                                            🌟 <strong>Published Open-Access Article:</strong> Volume {manuscript.volume || "1"}, Issue {manuscript.issue || "1"}
+                                                            {manuscript.doi && (
+                                                                <span style={{ marginLeft: "10px", fontFamily: "monospace", color: "#38bdf8" }}>
+                                                                    DOI: {manuscript.doi}
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                    )}
+
+                                                    {manuscript.status === "ACCEPTED" && (
+                                                        <p style={{ fontSize: "0.88rem", color: "#93c5fd", margin: "0 0 12px 0" }}>
+                                                            ✓ Your manuscript has been formally accepted by the editorial board and is being prepared for volume release.
+                                                        </p>
+                                                    )}
+
+                                                    {manuscript.status === "REVISION_REQUIRED" && (
+                                                        <p style={{ fontSize: "0.88rem", color: "#fcd34d", margin: "0 0 12px 0" }}>
+                                                            ⚠️ Revisions have been requested by the handling editor. Please review the blinded reviewer critiques and editor instructions, then submit your revised PDF and response notes.
+                                                        </p>
+                                                    )}
+
+                                                    <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                                                        {(manuscript.status === "REVISION_REQUIRED" || manuscript.status === "ACCEPTED" || manuscript.status === "REJECTED") && (
+                                                            <button
+                                                                type="button"
+                                                                className="secondary-button"
+                                                                onClick={() => handleOpenFeedbackModal(manuscript)}
+                                                                style={{ padding: "6px 14px", fontSize: "0.82rem" }}
+                                                            >
+                                                                📋 View Decision & Reviewer Feedback
+                                                            </button>
+                                                        )}
+
+                                                        {manuscript.status === "REVISION_REQUIRED" && (
+                                                            <button
+                                                                type="button"
+                                                                className="primary-button"
+                                                                onClick={() => {
+                                                                    setRevisionModalManuscript(manuscript);
+                                                                    setRevisionFile(null);
+                                                                    setResponseNotes("");
+                                                                    setRevisionError("");
+                                                                }}
+                                                                style={{ padding: "6px 16px", fontSize: "0.82rem", background: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)" }}
+                                                            >
+                                                                🔄 Submit Revised Manuscript
+                                                            </button>
+                                                        )}
+
+                                                        <button
+                                                            type="button"
+                                                            className="secondary-button"
+                                                            onClick={() => handleOpenHistoryModal(manuscript)}
+                                                            style={{ padding: "6px 14px", fontSize: "0.82rem" }}
+                                                        >
+                                                            📜 Revision History
+                                                        </button>
+                                                    </div>
+                                                </div>
+
+                                                {/* =================================================
                                                 AI ANALYSIS
                                                 HIDDEN UNTIL BUTTON IS PRESSED
                                             ================================================= */}
@@ -2337,6 +2538,411 @@ function AuthorDashboard() {
                         )}
 
                 </section>
+
+                {/* =================================================
+                    MODAL: SUBMIT REVISED MANUSCRIPT
+                ================================================= */}
+                {revisionModalManuscript && (
+                    <div
+                        style={{
+                            position: "fixed",
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            background: "rgba(0, 0, 0, 0.8)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            padding: "20px",
+                            zIndex: 1000,
+                            backdropFilter: "blur(6px)"
+                        }}
+                    >
+                        <div
+                            className="card"
+                            style={{
+                                maxWidth: "640px",
+                                width: "100%",
+                                padding: "32px",
+                                textAlign: "left"
+                            }}
+                        >
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+                                <h3 style={{ margin: 0, fontSize: "1.3rem" }}>
+                                    Submit Revised Manuscript
+                                </h3>
+                                <button
+                                    onClick={() => setRevisionModalManuscript(null)}
+                                    style={{ background: "none", border: "none", color: "#94a3b8", fontSize: "1.3rem", cursor: "pointer" }}
+                                >
+                                    ✕
+                                </button>
+                            </div>
+
+                            <p style={{ fontSize: "0.9rem", color: "var(--text-secondary)", marginBottom: "16px" }}>
+                                Submitting revision for: <strong>{revisionModalManuscript.title}</strong>
+                            </p>
+
+                            {revisionError && (
+                                <div
+                                    className="card"
+                                    style={{
+                                        borderColor: "rgba(239, 68, 68, 0.4)",
+                                        background: "rgba(239, 68, 68, 0.1)",
+                                        color: "#fca5a5",
+                                        padding: "12px 16px",
+                                        marginBottom: "16px",
+                                        fontSize: "0.85rem"
+                                    }}
+                                >
+                                    ✕ {revisionError}
+                                </div>
+                            )}
+
+                            <form onSubmit={handleSubmitRevision} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                                <div>
+                                    <label style={{ fontSize: "0.85rem", fontWeight: 600, display: "block", marginBottom: "6px" }}>
+                                        Upload Revised Manuscript PDF: <span style={{ color: "#f87171" }}>*</span>
+                                    </label>
+                                    <input
+                                        type="file"
+                                        accept=".pdf,application/pdf"
+                                        required
+                                        className="form-input"
+                                        onChange={(e) => setRevisionFile(e.target.files?.[0] || null)}
+                                    />
+                                    <small style={{ color: "var(--text-muted)", fontSize: "0.78rem" }}>
+                                        PDF format only. Maximum 10 MB.
+                                    </small>
+                                </div>
+
+                                <div>
+                                    <label style={{ fontSize: "0.85rem", fontWeight: 600, display: "block", marginBottom: "6px" }}>
+                                        Author Response to Reviewers & Editor:
+                                    </label>
+                                    <textarea
+                                        className="form-input"
+                                        rows={6}
+                                        placeholder="Detail point-by-point the specific revisions, amendments, and responses made to reviewer comments..."
+                                        value={responseNotes}
+                                        onChange={(e) => setResponseNotes(e.target.value)}
+                                    />
+                                </div>
+
+                                <div style={{ display: "flex", gap: "12px", justifyContent: "flex-end", marginTop: "8px" }}>
+                                    <button
+                                        type="button"
+                                        onClick={() => setRevisionModalManuscript(null)}
+                                        className="btn btn-secondary"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        disabled={submittingRevision || !revisionFile}
+                                        className="btn btn-primary"
+                                        style={{ background: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)" }}
+                                    >
+                                        {submittingRevision ? "Uploading Revision..." : "Upload & Submit Revision"}
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                )}
+
+                {/* =================================================
+                    MODAL: REVISION HISTORY
+                ================================================= */}
+                {historyModalManuscript && (
+                    <div
+                        style={{
+                            position: "fixed",
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            background: "rgba(0, 0, 0, 0.8)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            padding: "20px",
+                            zIndex: 1000,
+                            backdropFilter: "blur(6px)"
+                        }}
+                    >
+                        <div
+                            className="card"
+                            style={{
+                                maxWidth: "700px",
+                                width: "100%",
+                                padding: "32px",
+                                textAlign: "left",
+                                maxHeight: "85vh",
+                                overflowY: "auto"
+                            }}
+                        >
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+                                <h3 style={{ margin: 0, fontSize: "1.3rem" }}>
+                                    Revision History
+                                </h3>
+                                <button
+                                    onClick={() => setHistoryModalManuscript(null)}
+                                    style={{ background: "none", border: "none", color: "#94a3b8", fontSize: "1.3rem", cursor: "pointer" }}
+                                >
+                                    ✕
+                                </button>
+                            </div>
+
+                            <p style={{ fontSize: "0.9rem", color: "var(--text-secondary)", marginBottom: "20px" }}>
+                                Archived versions for: <strong>{historyModalManuscript.title}</strong>
+                            </p>
+
+                            {loadingHistory && (
+                                <p style={{ color: "var(--text-secondary)" }}>Loading version archive...</p>
+                            )}
+
+                            {!loadingHistory && revisionHistory.length === 0 && (
+                                <p style={{ color: "var(--text-muted)", fontSize: "0.9rem" }}>
+                                    No previous archived revisions. The current PDF is the initial submission (v1).
+                                </p>
+                            )}
+
+                            {!loadingHistory && revisionHistory.length > 0 && (
+                                <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                                    {revisionHistory.map((rev) => (
+                                        <div
+                                            key={rev.id}
+                                            style={{
+                                                padding: "16px",
+                                                background: "rgba(255, 255, 255, 0.03)",
+                                                borderRadius: "8px",
+                                                border: "1px solid rgba(255, 255, 255, 0.08)"
+                                            }}
+                                        >
+                                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+                                                <span className="badge badge-submitted">
+                                                    Version {rev.versionNumber}
+                                                </span>
+                                                <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>
+                                                    {rev.uploadedAt ? new Date(rev.uploadedAt).toLocaleString() : ""}
+                                                </span>
+                                            </div>
+                                            {rev.fileName && (
+                                                <p style={{ margin: "0 0 6px 0", fontSize: "0.85rem", color: "var(--text-secondary)" }}>
+                                                    <strong>File:</strong> {rev.fileName}
+                                                </p>
+                                            )}
+                                            {rev.responseNotes && (
+                                                <div style={{ marginTop: "8px" }}>
+                                                    <strong style={{ fontSize: "0.82rem", color: "var(--accent-primary)" }}>
+                                                        Author Response Notes:
+                                                    </strong>
+                                                    <p style={{ margin: "4px 0 0 0", fontSize: "0.88rem", color: "var(--text-secondary)", whiteSpace: "pre-wrap" }}>
+                                                        {rev.responseNotes}
+                                                    </p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "24px" }}>
+                                <button
+                                    type="button"
+                                    onClick={() => setHistoryModalManuscript(null)}
+                                    className="btn btn-secondary"
+                                >
+                                    Close
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* =================================================
+                    MODAL: EDITORIAL DECISION & REVIEWER FEEDBACK
+                ================================================= */}
+                {feedbackModalManuscript && (
+                    <div
+                        style={{
+                            position: "fixed",
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            background: "rgba(0, 0, 0, 0.8)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            padding: "20px",
+                            zIndex: 1000,
+                            backdropFilter: "blur(6px)"
+                        }}
+                    >
+                        <div
+                            className="card"
+                            style={{
+                                maxWidth: "800px",
+                                width: "100%",
+                                padding: "32px",
+                                textAlign: "left",
+                                maxHeight: "85vh",
+                                overflowY: "auto"
+                            }}
+                        >
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+                                <h3 style={{ margin: 0, fontSize: "1.3rem" }}>
+                                    Editorial Decision & Peer Feedback
+                                </h3>
+                                <button
+                                    onClick={() => setFeedbackModalManuscript(null)}
+                                    style={{ background: "none", border: "none", color: "#94a3b8", fontSize: "1.3rem", cursor: "pointer" }}
+                                >
+                                    ✕
+                                </button>
+                            </div>
+
+                            <p style={{ fontSize: "0.9rem", color: "var(--text-secondary)", marginBottom: "20px" }}>
+                                Manuscript: <strong>{feedbackModalManuscript.title}</strong>
+                            </p>
+
+                            {loadingFeedback && (
+                                <p style={{ color: "var(--text-secondary)" }}>Loading decision dossier...</p>
+                            )}
+
+                            {!loadingFeedback && (
+                                <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+                                    {/* Editor Decision Section */}
+                                    {decisionRecord ? (
+                                        <div
+                                            style={{
+                                                padding: "20px",
+                                                borderRadius: "10px",
+                                                background: "rgba(99, 102, 241, 0.08)",
+                                                border: "1px solid rgba(99, 102, 241, 0.25)"
+                                            }}
+                                        >
+                                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
+                                                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                                    <span className="badge badge-revision">
+                                                        EDITOR DECISION
+                                                    </span>
+                                                    <strong style={{ color: "#fff" }}>
+                                                        {decisionRecord.decision}
+                                                    </strong>
+                                                </div>
+                                                <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>
+                                                    {decisionRecord.decidedAt ? new Date(decisionRecord.decidedAt).toLocaleString() : ""}
+                                                </span>
+                                            </div>
+
+                                            {decisionRecord.comments ? (
+                                                <div>
+                                                    <h4 style={{ margin: "0 0 6px 0", fontSize: "0.9rem", color: "var(--accent-primary)" }}>
+                                                        Editorial Instructions & Revision Comments:
+                                                    </h4>
+                                                    <p style={{ margin: 0, fontSize: "0.92rem", color: "var(--text-secondary)", lineHeight: 1.6, whiteSpace: "pre-wrap" }}>
+                                                        {decisionRecord.comments}
+                                                    </p>
+                                                </div>
+                                            ) : (
+                                                <p style={{ margin: 0, fontSize: "0.85rem", color: "var(--text-muted)" }}>
+                                                    No additional written comments from the editor.
+                                                </p>
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <p style={{ color: "var(--text-muted)", fontSize: "0.85rem" }}>
+                                            No formal editor decision recorded yet.
+                                        </p>
+                                    )}
+
+                                    {/* Blinded Peer Reviews */}
+                                    <div>
+                                        <h4 style={{ fontSize: "1.05rem", color: "var(--text-primary)", margin: "0 0 14px 0" }}>
+                                            Blinded Peer Review Evaluations ({manuscriptReviews.length})
+                                        </h4>
+
+                                        {manuscriptReviews.length === 0 ? (
+                                            <p style={{ color: "var(--text-muted)", fontSize: "0.85rem" }}>
+                                                No completed reviewer reports available.
+                                            </p>
+                                        ) : (
+                                            <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+                                                {manuscriptReviews.map((rev, idx) => (
+                                                    <div
+                                                        key={rev.id || idx}
+                                                        style={{
+                                                            padding: "16px",
+                                                            borderRadius: "8px",
+                                                            background: "rgba(255, 255, 255, 0.02)",
+                                                            border: "1px solid rgba(255, 255, 255, 0.06)"
+                                                        }}
+                                                    >
+                                                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+                                                            <strong>Anonymous Reviewer #{idx + 1}</strong>
+                                                            <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                                                                <span className="badge badge-submitted">
+                                                                    {rev.recommendation}
+                                                                </span>
+                                                                <span style={{ fontSize: "0.85rem", color: "#a5b4fc", fontWeight: 700 }}>
+                                                                    ★ {rev.rating}/5
+                                                                </span>
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Criteria ratings */}
+                                                        <div style={{ display: "flex", gap: "16px", fontSize: "0.8rem", color: "var(--text-muted)", marginBottom: "10px" }}>
+                                                            {rev.clarityRating && <span>Clarity: {rev.clarityRating}/5</span>}
+                                                            {rev.originalityRating && <span>Originality: {rev.originalityRating}/5</span>}
+                                                            {rev.methodologyRating && <span>Methodology: {rev.methodologyRating}/5</span>}
+                                                        </div>
+
+                                                        {/* Blinded comments */}
+                                                        {rev.commentsToAuthor && (
+                                                            <div style={{ marginTop: "8px" }}>
+                                                                <strong style={{ fontSize: "0.85rem", color: "var(--accent-primary)" }}>
+                                                                    Comments to Author:
+                                                                </strong>
+                                                                <p style={{ margin: "4px 0 0 0", fontSize: "0.9rem", color: "var(--text-secondary)", lineHeight: 1.5, whiteSpace: "pre-wrap" }}>
+                                                                    {rev.commentsToAuthor}
+                                                                </p>
+                                                            </div>
+                                                        )}
+
+                                                        {rev.comments && (
+                                                            <div style={{ marginTop: "8px" }}>
+                                                                <strong style={{ fontSize: "0.85rem", color: "var(--text-primary)" }}>
+                                                                    General Evaluation:
+                                                                </strong>
+                                                                <p style={{ margin: "4px 0 0 0", fontSize: "0.9rem", color: "var(--text-secondary)", lineHeight: 1.5, whiteSpace: "pre-wrap" }}>
+                                                                    {rev.comments}
+                                                                </p>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+
+                            <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "24px" }}>
+                                <button
+                                    type="button"
+                                    onClick={() => setFeedbackModalManuscript(null)}
+                                    className="btn btn-secondary"
+                                >
+                                    Close
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
 
             </main>
         </div>

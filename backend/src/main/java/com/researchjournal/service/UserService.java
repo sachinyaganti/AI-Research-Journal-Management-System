@@ -62,6 +62,34 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    public java.util.List<com.researchjournal.dto.UserResponse> getReviewers() {
+        return userRepository.findByRole(com.researchjournal.entity.Role.REVIEWER)
+                .stream()
+                .filter(User::isActive)
+                .map(user -> new com.researchjournal.dto.UserResponse(
+                        user.getId(),
+                        user.getFullName(),
+                        user.getEmail(),
+                        user.getRole(),
+                        user.isActive()))
+                .toList();
+    }
+
+    public User loginOrRegisterGoogle(com.researchjournal.dto.GoogleAuthRequest request) {
+        return userRepository.findByEmail(request.getEmail().toLowerCase().trim())
+                .orElseGet(() -> {
+                    // Automatically register new Google user with AUTHOR role
+                    User newUser = User.builder()
+                            .fullName(request.getFullName())
+                            .email(request.getEmail().toLowerCase().trim())
+                            .password(passwordEncoder.encode(java.util.UUID.randomUUID().toString()))
+                            .role(com.researchjournal.entity.Role.AUTHOR)
+                            .active(true)
+                            .build();
+                    return userRepository.save(newUser);
+                });
+    }
+
     public User findByEmail(String email) {
 
         return userRepository

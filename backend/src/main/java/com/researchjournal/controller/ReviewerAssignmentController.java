@@ -17,11 +17,30 @@ import java.util.List;
 public class ReviewerAssignmentController {
 
         private final ReviewerAssignmentService assignmentService;
+        private final com.researchjournal.service.UserService userService;
 
         public ReviewerAssignmentController(
-                        ReviewerAssignmentService assignmentService) {
+                        ReviewerAssignmentService assignmentService,
+                        com.researchjournal.service.UserService userService) {
 
                 this.assignmentService = assignmentService;
+                this.userService = userService;
+        }
+
+        @GetMapping("/reviewers")
+        public List<com.researchjournal.dto.UserResponse> getReviewers(
+                        Authentication authentication) {
+
+                User currentUser = (User) authentication.getPrincipal();
+
+                if (currentUser.getRole().name().equals("AUTHOR")
+                                || currentUser.getRole().name().equals("REVIEWER")) {
+
+                        throw new AccessDeniedException(
+                                        "Only editors and admins can view reviewers list");
+                }
+
+                return userService.getReviewers();
         }
 
         @PostMapping("/manuscripts/{manuscriptId}/reviewers")

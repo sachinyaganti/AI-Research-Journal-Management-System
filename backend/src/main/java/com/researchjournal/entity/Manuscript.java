@@ -59,8 +59,20 @@ public class Manuscript {
     private Long fileSize;
 
     @Builder.Default
-@Column(nullable = false)
-private boolean screeningCompleted = false;
+    @Column(nullable = false)
+    private boolean screeningCompleted = false;
+
+    @Column(name = "published_at")
+    private LocalDateTime publishedAt;
+
+    private String volume;
+
+    private String issue;
+
+    private String doi;
+
+    @Column(name = "publication_notes", columnDefinition = "TEXT")
+    private String publicationNotes;
 
     @PrePersist
     protected void onCreate() {

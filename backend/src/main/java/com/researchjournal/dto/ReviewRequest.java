@@ -20,6 +20,22 @@ public class ReviewRequest {
     @NotBlank(message = "Comments are required")
     private String comments;
 
+    private String commentsToAuthor;
+
+    private String confidentialCommentsToEditor;
+
+    @Min(value = 1, message = "Clarity rating must be between 1 and 5")
+    @Max(value = 5, message = "Clarity rating must be between 1 and 5")
+    private Integer clarityRating;
+
+    @Min(value = 1, message = "Originality rating must be between 1 and 5")
+    @Max(value = 5, message = "Originality rating must be between 1 and 5")
+    private Integer originalityRating;
+
+    @Min(value = 1, message = "Methodology rating must be between 1 and 5")
+    @Max(value = 5, message = "Methodology rating must be between 1 and 5")
+    private Integer methodologyRating;
+
     @NotNull(message = "Recommendation is required")
     private ReviewRecommendation recommendation;
 }

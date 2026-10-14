@@ -1,13 +1,15 @@
 package com.researchjournal.dto;
 
 import com.researchjournal.entity.ReviewRecommendation;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Getter
+@Setter
+@NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class ReviewResponse {
 
     private Long id;
@@ -25,6 +27,16 @@ public class ReviewResponse {
     private Integer rating;
 
     private String comments;
+
+    private String commentsToAuthor;
+
+    private String confidentialCommentsToEditor;
+
+    private Integer clarityRating;
+
+    private Integer originalityRating;
+
+    private Integer methodologyRating;
 
     private ReviewRecommendation recommendation;
 

@@ -66,4 +66,27 @@ public class AuthController {
 
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/google")
+    public ResponseEntity<LoginResponse> googleAuth(
+            @Valid @RequestBody com.researchjournal.dto.GoogleAuthRequest request) {
+
+        User user = userService.loginOrRegisterGoogle(request);
+
+        String token = jwtService.generateToken(user);
+
+        UserResponse userResponse = new UserResponse(
+                user.getId(),
+                user.getFullName(),
+                user.getEmail(),
+                user.getRole(),
+                user.isActive());
+
+        LoginResponse response = new LoginResponse(
+                token,
+                "Bearer",
+                userResponse);
+
+        return ResponseEntity.ok(response);
+    }
 }

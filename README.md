@@ -73,7 +73,17 @@ Build a centralized, secure, and extensible journal-management platform that com
 
 # ✨ Features
 
+<<<<<<< HEAD
 ## 👨‍🎓 Author
+=======
+## 🔐 Authentication & Single Sign-On (SSO)
+
+* Standard JWT Authentication with BCrypt password hashing.
+* **Google Sign-In & Sign-Up**: One-click Google OAuth authentication modal for authors, creating secure accounts strictly enforced with the `AUTHOR` role.
+* Role-based Route Protection and Dynamic Navbar badges (`AUTHOR`, `REVIEWER`, `EDITOR`, `ADMIN`).
+
+## 👨‍🎓 Author Module
+>>>>>>> 933cdad (Add latest project updates and files)
 
 - Registration and login
 - Author dashboard
@@ -86,6 +96,7 @@ Build a centralized, secure, and extensible journal-management platform that com
 - Submit revised manuscripts
 - Track manuscript versions and history
 
+<<<<<<< HEAD
 ## 🔍 Reviewer
 
 - Secure login
@@ -119,6 +130,16 @@ Build a centralized, secure, and extensible journal-management platform that com
 - Page-count detection
 - Extracted-text reporting
 - Detection of PDFs without readable text
+=======
+* Register and authenticate via email/password or Google SSO.
+* Submit research manuscripts with title, category, keywords, abstract, and PDF files.
+* Run real-time AI quality pre-screening and internal similarity checks.
+* Track manuscript status across the editorial pipeline.
+* Inspect blinded peer reviews and editorial decision instructions.
+* **Submit Revised Manuscripts**: Upload new PDF drafts accompanied by point-by-point author response notes (`POST /api/manuscripts/{id}/revisions`).
+* **Version History Archive**: Review past revision drafts with timestamps and response logs.
+* Download published PDFs with DOI assignments upon acceptance.
+>>>>>>> 933cdad (Add latest project updates and files)
 
 ---
 
@@ -126,6 +147,7 @@ Build a centralized, secure, and extensible journal-management platform that com
 
 The project contains a dedicated **FastAPI AI service** instead of embedding AI processing directly inside the Spring Boot application.
 
+<<<<<<< HEAD
 ### Current AI modules
 
 | Module | Current capability |
@@ -175,6 +197,15 @@ Research Paper PDF
 ```
 
 > **Responsible AI:** AI analysis is intended as decision-support functionality. Final editorial and peer-review decisions should remain under authorized human review.
+=======
+* Authenticate securely.
+* View assigned manuscripts with due dates and statuses.
+* Download and inspect assigned manuscript PDF documents.
+* Evaluate submissions across **Multi-Criteria Ratings** (Clarity, Originality, Methodology on a 1-5 scale).
+* Provide constructive blinded remarks to the author (`commentsToAuthor`).
+* Enter strictly confidential assessments visible only to editors (`confidentialCommentsToEditor`).
+* Submit formal recommendations (`ACCEPT`, `MINOR_REVISION`, `MAJOR_REVISION`, `REJECT`).
+>>>>>>> 933cdad (Add latest project updates and files)
 
 ---
 
@@ -182,6 +213,7 @@ Research Paper PDF
 
 The FastAPI service exposes the following analysis endpoints under `/api/analysis`.
 
+<<<<<<< HEAD
 | Method | Endpoint | Purpose |
 |---|---|---|
 | GET | `/health` | AI service health check |
@@ -189,6 +221,15 @@ The FastAPI service exposes the following analysis endpoints under `/api/analysi
 | POST | `/api/analysis/manuscript` | Analyze manuscript content |
 | POST | `/api/analysis/ai-content` | Analyze AI-generated-content indicators |
 | POST | `/api/analysis/similarity` | Perform similarity analysis |
+=======
+* View submitted manuscripts across interactive status tabs (`SUBMITTED`, `UNDER_REVIEW`, `REVISION_REQUIRED`, `ACCEPTED`, `REJECTED`, `PUBLISHED`).
+* Download and review manuscript PDFs.
+* Assign and monitor reviewers via dedicated Reviewer Assignment modals.
+* Review completed peer evaluations with full access to confidential reviewer comments.
+* Issue formal Editorial Decisions with required revision instructions or rejection rationales.
+* **Publish Open-Access Articles**: Assign Volume, Issue, DOI, and release notes upon acceptance.
+* Expose published papers to the public archive (`/publications`).
+>>>>>>> 933cdad (Add latest project updates and files)
 
 ### PDF screening
 

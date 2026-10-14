@@ -1,9 +1,15 @@
 package com.researchjournal.dto;
 
 import com.researchjournal.entity.ManuscriptStatus;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class ManuscriptResponse {
 
     private Long id;
@@ -25,94 +31,10 @@ public class ManuscriptResponse {
     private String fileType;
     private Long fileSize;
 
-    public ManuscriptResponse(
-            Long id,
-            String title,
-            String abstractText,
-            String keywords,
-            String category,
-            ManuscriptStatus status,
-            Long authorId,
-            String authorName,
-            String authorEmail,
-            LocalDateTime createdAt,
-            LocalDateTime updatedAt,
-            String fileName,
-            String fileType,
-            Long fileSize) {
-
-        this.id = id;
-        this.title = title;
-        this.abstractText = abstractText;
-        this.keywords = keywords;
-        this.category = category;
-        this.status = status;
-
-        this.authorId = authorId;
-        this.authorName = authorName;
-        this.authorEmail = authorEmail;
-
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-
-        this.fileName = fileName;
-        this.fileType = fileType;
-        this.fileSize = fileSize;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public String getAbstractText() {
-        return abstractText;
-    }
-
-    public String getKeywords() {
-        return keywords;
-    }
-
-    public String getCategory() {
-        return category;
-    }
-
-    public ManuscriptStatus getStatus() {
-        return status;
-    }
-
-    public Long getAuthorId() {
-        return authorId;
-    }
-
-    public String getAuthorName() {
-        return authorName;
-    }
-
-    public String getAuthorEmail() {
-        return authorEmail;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public String getFileName() {
-        return fileName;
-    }
-
-    public String getFileType() {
-        return fileType;
-    }
-
-    public Long getFileSize() {
-        return fileSize;
-    }
+    // Publication metadata
+    private LocalDateTime publishedAt;
+    private String volume;
+    private String issue;
+    private String doi;
+    private String publicationNotes;
 }
