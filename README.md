@@ -1,621 +1,82 @@
-# 📚 AI-Enabled Research Journal Management System
+# AI-Enabled Research Journal Management System
 
-<p align="center">
-  <img src="https://img.shields.io/badge/Java-21-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white" />
-  <img src="https://img.shields.io/badge/Spring%20Boot-4.1.1-6DB33F?style=for-the-badge&logo=springboot&logoColor=white" />
-  <img src="https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black" />
-  <img src="https://img.shields.io/badge/Vite-8-646CFF?style=for-the-badge&logo=vite&logoColor=white" />
-  <img src="https://img.shields.io/badge/PostgreSQL-18-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" />
-  <img src="https://img.shields.io/badge/FastAPI-0.141-009688?style=for-the-badge&logo=fastapi&logoColor=white" />
-  <img src="https://img.shields.io/badge/JWT-Security-000000?style=for-the-badge" />
-</p>
+A full-stack academic journal workflow application for manuscript submission, reviewer assignment, peer review, revisions, editorial decisions, publication tracking, and AI-assisted document analysis.
 
-<p align="center">
-  <strong>A full-stack platform for managing the complete research manuscript lifecycle with AI-assisted document analysis.</strong>
-</p>
+## Technology stack
 
-<p align="center">
-  <a href="#-overview">Overview</a> •
-  <a href="#-features">Features</a> •
-  <a href="#-ai-capabilities">AI</a> •
-  <a href="#-architecture">Architecture</a> •
-  <a href="#-setup">Setup</a> •
-  <a href="#-api-overview">API</a> •
-  <a href="#-roadmap">Roadmap</a>
-</p>
+- **Frontend:** React 19, Vite 8, React Router, Axios
+- **Backend:** Java 21, Spring Boot 4.1.x, Spring Security, Spring Data JPA
+- **Database:** PostgreSQL
+- **AI service:** Python, FastAPI, Pydantic, pypdf
+- **LLM integration:** Groq (optional; configure an API key privately)
+- **Authentication:** JWT and BCrypt
 
----
+> Version badges and package versions can drift. Check each component's `package.json`, `pom.xml`, and `requirements.txt` for the exact installed versions.
 
-## 🌟 Overview
+## Features
 
-The **AI-Enabled Research Journal Management System** is a full-stack web application designed to digitize and streamline the academic research publication workflow.
+### Author workflow
+- Register and sign in.
+- Create, edit, and submit manuscripts.
+- Upload research-paper PDFs.
+- Track manuscript status and review outcomes.
+- Submit revised files and author response notes where enabled.
+- View revision history where enabled.
 
-It connects **Authors, Reviewers, and Editors** in one role-based platform and supports manuscript submission, PDF upload, reviewer assignment, peer review, revisions, editorial decisions, decision history, and publication workflow.
+### Reviewer workflow
+- View manuscripts assigned to the reviewer.
+- Inspect manuscript details and available PDF files.
+- Submit ratings, author-facing feedback, confidential editor comments, and a recommendation.
 
-The system uses a modular architecture:
+### Editor workflow
+- Review submissions and assign reviewers.
+- Monitor review progress and read submitted reviews.
+- Request revisions and record editorial decisions.
+- Track manuscript status and decision history.
+- Manage publication metadata and view the public publications page where configured.
 
-- ⚛️ **React 19 + Vite** — frontend
-- ☕ **Java 21 + Spring Boot 4.1.1** — core REST backend
-- 🐘 **PostgreSQL** — application database
-- 🐍 **Python + FastAPI** — AI/document-analysis service
-- 🔐 **Spring Security + JWT + BCrypt** — authentication and authorization
-- 🤖 **Groq integration** — AI-assisted manuscript/content analysis
+### AI/document analysis
+- Validate PDF uploads and extract readable text.
+- Generate structured manuscript-quality feedback.
+- Produce text-pattern indicators related to AI-generated writing.
+- Compare manuscripts using lexical similarity analysis.
+- Use Groq-powered analysis when configured, with fallback behavior where implemented.
 
----
+**Important limitations:** AI-writing indicators are not proof of authorship. Similarity based on word-set/Jaccard overlap is lexical rather than semantic and can miss paraphrases or flag common wording. Treat AI outputs as decision-support signals, not as substitutes for human review.
 
-# 🎯 Problem Statement
-
-Research publication workflows often involve multiple disconnected activities:
-
-1. Authors prepare and submit manuscripts.
-2. Editors screen submissions and assign reviewers.
-3. Reviewers evaluate manuscripts and submit recommendations.
-4. Authors revise papers when required.
-5. Editors make final decisions.
-6. Accepted papers move toward publication.
-
-Managing these activities manually can make it difficult to maintain consistent status tracking, review history, manuscript versions, document processing, and editorial decisions.
-
-### Project Objective
-
-Build a centralized, secure, and extensible journal-management platform that combines:
-
-- Role-based workflow management
-- Manuscript and PDF management
-- Reviewer assignment and review handling
-- Revision and decision tracking
-- AI-assisted document analysis
-- Similarity analysis
-- AI-content analysis
-- A separate AI service that can evolve independently from the main backend
-
----
-
-# ✨ Features
-
-<<<<<<< HEAD
-## 👨‍🎓 Author
-=======
-## 🔐 Authentication & Single Sign-On (SSO)
-
-* Standard JWT Authentication with BCrypt password hashing.
-* **Google Sign-In & Sign-Up**: One-click Google OAuth authentication modal for authors, creating secure accounts strictly enforced with the `AUTHOR` role.
-* Role-based Route Protection and Dynamic Navbar badges (`AUTHOR`, `REVIEWER`, `EDITOR`, `ADMIN`).
-
-## 👨‍🎓 Author Module
->>>>>>> 933cdad (Add latest project updates and files)
-
-- Registration and login
-- Author dashboard
-- Create manuscripts
-- Edit manuscript details
-- Submit manuscripts
-- Upload research-paper PDFs
-- Track manuscript status
-- View review outcomes
-- Submit revised manuscripts
-- Track manuscript versions and history
-
-<<<<<<< HEAD
-## 🔍 Reviewer
-
-- Secure login
-- Reviewer dashboard
-- View assigned manuscripts
-- Access manuscript information
-- Review assigned papers
-- Submit review feedback
-- Provide recommendations
-- Track assigned review work
-
-## 👨‍💼 Editor
-
-- Editor dashboard
-- View submitted manuscripts
-- Assign reviewers
-- Monitor reviewer assignments
-- View submitted reviews
-- Request revisions
-- Make editorial decisions
-- Track decision history
-- Accept or reject manuscripts
-- Manage publication workflow
-
-## 📄 Document Processing
-
-- PDF upload
-- PDF validation
-- Empty-file validation
-- PDF text extraction
-- Page-count detection
-- Extracted-text reporting
-- Detection of PDFs without readable text
-=======
-* Register and authenticate via email/password or Google SSO.
-* Submit research manuscripts with title, category, keywords, abstract, and PDF files.
-* Run real-time AI quality pre-screening and internal similarity checks.
-* Track manuscript status across the editorial pipeline.
-* Inspect blinded peer reviews and editorial decision instructions.
-* **Submit Revised Manuscripts**: Upload new PDF drafts accompanied by point-by-point author response notes (`POST /api/manuscripts/{id}/revisions`).
-* **Version History Archive**: Review past revision drafts with timestamps and response logs.
-* Download published PDFs with DOI assignments upon acceptance.
->>>>>>> 933cdad (Add latest project updates and files)
-
----
-
-# 🤖 AI Capabilities
-
-The project contains a dedicated **FastAPI AI service** instead of embedding AI processing directly inside the Spring Boot application.
-
-<<<<<<< HEAD
-### Current AI modules
-
-| Module | Current capability |
-|---|---|
-| 📄 PDF Screening | Validates PDFs and extracts readable text |
-| 📝 Manuscript Analysis | Performs structured manuscript analysis |
-| 🤖 AI Content Analysis | Analyzes manuscript content for AI-generated-content indicators |
-| 🔎 Similarity Analysis | Calculates similarity information between supplied content |
-| 🧠 LLM Analysis | Provides the AI/LLM processing layer used by manuscript analysis |
-| 🔗 Backend AI Clients | Spring Boot clients communicate with the FastAPI service |
-
-> **Implementation note:** The current similarity engine uses normalized word-set overlap (Jaccard similarity), not an embedding-based semantic similarity model. Results are therefore lexical similarity indicators and should be interpreted accordingly.
->
-> The manuscript-analysis LLM layer currently uses Groq with the `openai/gpt-oss-20b` model and requests structured JSON output for abstract quality, methodology, results, conclusion, writing quality, relevance, missing sections, writing issues, and suggestions.
-
-### AI processing flow
+## Architecture
 
 ```text
-Research Paper PDF
-        │
-        ▼
-┌──────────────────────┐
-│ PDF Screening        │
-│ + Text Extraction    │
-└──────────┬───────────┘
-           │
-           ▼
-┌─────────────────────────────┐
-│ FastAPI AI Service          │
-│                             │
-│ Manuscript Analysis         │
-│ AI Content Analysis         │
-│ Similarity Analysis         │
-└────────────┬────────────────┘
-             │
-             ▼
-      Analysis Response
-             │
-             ▼
-┌─────────────────────────────┐
-│ Spring Boot Backend         │
-│ AI Client / REST Layer      │
-└────────────┬────────────────┘
-             │
-             ▼
-       React Dashboard
+React + Vite frontend
+        |
+        v
+Spring Boot REST API ------ PostgreSQL
+        |
+        v
+FastAPI AI service
+  |       |        |
+  PDF   Manuscript Similarity/content
 ```
 
-> **Responsible AI:** AI analysis is intended as decision-support functionality. Final editorial and peer-review decisions should remain under authorized human review.
-=======
-* Authenticate securely.
-* View assigned manuscripts with due dates and statuses.
-* Download and inspect assigned manuscript PDF documents.
-* Evaluate submissions across **Multi-Criteria Ratings** (Clarity, Originality, Methodology on a 1-5 scale).
-* Provide constructive blinded remarks to the author (`commentsToAuthor`).
-* Enter strictly confidential assessments visible only to editors (`confidentialCommentsToEditor`).
-* Submit formal recommendations (`ACCEPT`, `MINOR_REVISION`, `MAJOR_REVISION`, `REJECT`).
->>>>>>> 933cdad (Add latest project updates and files)
-
----
-
-# 🔌 AI Service Endpoints
-
-The FastAPI service exposes the following analysis endpoints under `/api/analysis`.
-
-<<<<<<< HEAD
-| Method | Endpoint | Purpose |
-|---|---|---|
-| GET | `/health` | AI service health check |
-| POST | `/api/analysis/screen-pdf` | Validate and extract text from PDF |
-| POST | `/api/analysis/manuscript` | Analyze manuscript content |
-| POST | `/api/analysis/ai-content` | Analyze AI-generated-content indicators |
-| POST | `/api/analysis/similarity` | Perform similarity analysis |
-=======
-* View submitted manuscripts across interactive status tabs (`SUBMITTED`, `UNDER_REVIEW`, `REVISION_REQUIRED`, `ACCEPTED`, `REJECTED`, `PUBLISHED`).
-* Download and review manuscript PDFs.
-* Assign and monitor reviewers via dedicated Reviewer Assignment modals.
-* Review completed peer evaluations with full access to confidential reviewer comments.
-* Issue formal Editorial Decisions with required revision instructions or rejection rationales.
-* **Publish Open-Access Articles**: Assign Volume, Issue, DOI, and release notes upon acceptance.
-* Expose published papers to the public archive (`/publications`).
->>>>>>> 933cdad (Add latest project updates and files)
-
-### PDF screening
-
-The PDF endpoint:
-
-- Accepts PDF uploads
-- Rejects non-PDF files
-- Rejects empty files
-- Extracts readable text
-- Returns page count
-- Returns character count
-- Reports when no readable text is available
-
-Example response structure:
-
-```json
-{
-  "file_name": "research-paper.pdf",
-  "page_count": 8,
-  "character_count": 24567,
-  "extracted_text": "..."
-}
-```
-
----
-
-# 🔐 Authentication & Security
-
-The Spring Boot backend uses:
-
-- **Spring Security**
-- **JWT authentication**
-- **BCrypt password hashing**
-- **Role-based authorization**
-- Protected REST endpoints
-- Server-side authorization
-
-### Authentication flow
-
-```text
-User
-  │
-  ▼
-Login
-  │
-  ▼
-Spring Security
-  │
-  ├── Validate credentials
-  └── Load user role
-  │
-  ▼
-JWT Token
-  │
-  ▼
-Protected REST Request
-  │
-  ▼
-JWT Validation
-  │
-  ▼
-Role-Based Authorization
-  │
-  ▼
-Controller / Service
-```
-
-### Security rule
-
-Never commit:
-
-```text
-.env
-API keys
-Groq API keys
-JWT secrets
-Database passwords
-Private credentials
-```
-
-Use environment variables or secure secret management for production deployments.
-
----
-
-# 👥 User Roles
-
-| Capability | Author | Reviewer | Editor |
-|---|:---:|:---:|:---:|
-| Register / Login | ✅ | ✅ | ✅ |
-| Create manuscript | ✅ | — | — |
-| Edit own manuscript | ✅ | — | — |
-| Upload PDF | ✅ | — | — |
-| Submit manuscript | ✅ | — | — |
-| View assigned manuscripts | — | ✅ | ✅ |
-| Submit review | — | ✅ | — |
-| Assign reviewers | — | — | ✅ |
-| Request revision | — | — | ✅ |
-| View reviewer feedback | — | — | ✅ |
-| Make editorial decision | — | — | ✅ |
-| Manage publication workflow | — | — | ✅ |
-
----
-
-# 🔄 Manuscript Workflow
-
-```text
-AUTHOR
-  │
-  │ Create + Submit Manuscript
-  ▼
-SUBMITTED
-  │
-  ▼
-EDITOR
-  │
-  │ Assign Reviewer
-  ▼
-REVIEWER
-  │
-  │ Review + Recommendation
-  ▼
-EDITOR
-  │
-  ├───────────────┬────────────────┐
-  │               │                │
-  ▼               ▼                ▼
-ACCEPTED       REVISION         REJECTED
-  │            REQUIRED            │
-  ▼               │                ▼
-PUBLISHED         ▼              CLOSED
-             RESUBMISSION
-                  │
-                  ▼
-              RE-REVIEW
-                  │
-                  ▼
-                EDITOR
-```
-
----
-
-# 📌 Manuscript Lifecycle
-
-```text
-SUBMITTED
-    │
-    ▼
-UNDER_REVIEW
-    │
-    ├───────────────┐
-    │               │
-    ▼               ▼
-ACCEPTED       REVISION_REQUIRED
-    │               │
-    ▼               ▼
-PUBLISHED       RESUBMITTED
-                    │
-                    ▼
-                UNDER_REVIEW
-
-REJECTED
-```
-
----
-
-# 📄 Manuscript Version Management
-
-The system supports a revision-oriented workflow:
-
-```text
-Manuscript
-   │
-   ├── Version 1 → Initial Submission
-   │
-   ├── Version 2 → Revised Manuscript
-   │
-   ├── Version 3 → Further Revision
-   │
-   └── Final Version
-```
-
-This keeps revisions connected to the original manuscript workflow and supports traceability of the publication process.
-
----
-
-# 🏗️ System Architecture
-
-```text
-                         ┌────────────────────────┐
-                         │         USERS          │
-                         │ Author / Reviewer /     │
-                         │ Editor                 │
-                         └───────────┬────────────┘
-                                     │
-                                     ▼
-                         ┌────────────────────────┐
-                         │    React 19 + Vite     │
-                         │       Frontend         │
-                         └───────────┬────────────┘
-                                     │
-                                  REST API
-                                     │
-                                     ▼
-              ┌──────────────────────────────────────────┐
-              │          Spring Boot Backend             │
-              │                                          │
-              │ Authentication / JWT / Security          │
-              │ Manuscripts / Files / Reviews            │
-              │ Reviewer Assignments / Decisions         │
-              │ AI Service Clients                       │
-              └───────────────┬──────────────┬───────────┘
-                              │              │
-                              │              │ HTTP
-                              │              ▼
-                              │    ┌─────────────────────┐
-                              │    │   FastAPI AI        │
-                              │    │      Service        │
-                              │    │                     │
-                              │    │ PDF Screening       │
-                              │    │ Manuscript Analysis │
-                              │    │ AI Content Analysis │
-                              │    │ Similarity Analysis │
-                              │    └─────────────────────┘
-                              │
-                              ▼
-                    ┌─────────────────────┐
-                    │     PostgreSQL      │
-                    │ research_journal_db │
-                    └─────────────────────┘
-```
-
-### Architectural benefits
-
-- Separation of concerns
-- Independent AI service
-- Secure backend authorization
-- Easier testing and maintenance
-- Clear service boundaries
-- Future-ready for Docker and cloud deployment
-
----
-
-# 🧩 Technology Stack
-
-## Frontend
-
-| Technology | Version / Role |
-|---|---|
-| React | 19.x |
-| Vite | 8.x |
-| React Router | 7.x |
-| Axios | HTTP client |
-| JavaScript / JSX | Application logic |
-| CSS | Application styling |
-| Oxlint | Linting |
-
-> The current frontend package does **not** use Tailwind CSS; styling is implemented through the project's CSS files.
-
-## Backend
-
-| Technology | Version / Role |
-|---|---|
-| Java | 21 |
-| Spring Boot | 4.1.1 |
-| Spring Data JPA | Persistence |
-| Spring Security | Authentication / authorization |
-| Spring Web MVC | REST APIs |
-| JWT / JJWT | Token authentication |
-| PostgreSQL Driver | Database connectivity |
-| Lombok | Java development |
-| Maven | Build and dependency management |
-
-## AI Service
-
-| Technology | Version / Role |
-|---|---|
-| Python | AI service |
-| FastAPI | 0.141.1 |
-| Uvicorn | 0.52.4 |
-| Pydantic | Request/response validation |
-| Groq | LLM API integration |
-| python-dotenv | Environment configuration |
-| pypdf | PDF text extraction |
-
-## Database
-
-```text
-PostgreSQL
-Database: research_journal_db
-```
-
----
-
-# 📂 Project Structure
+## Repository layout
 
 ```text
 AI-Research-Journal-Management-System/
-│
-├── 📂 backend/
-│   ├── pom.xml
-│   └── src/
-│       ├── main/
-│       │   ├── java/com/researchjournal/
-│       │   │   ├── client/
-│       │   │   │   ├── AIAnalysisClient.java
-│       │   │   │   ├── AIContentAnalysisClient.java
-│       │   │   │   ├── PdfExtractionClient.java
-│       │   │   │   └── SimilarityAnalysisClient.java
-│       │   │   ├── config/
-│       │   │   ├── controller/
-│       │   │   ├── dto/
-│       │   │   ├── entity/
-│       │   │   ├── repository/
-│       │   │   ├── security/
-│       │   │   └── service/
-│       │   └── resources/
-│       │       └── application.properties
-│       └── test/
-│
-├── 📂 frontend/
-│   ├── package.json
-│   ├── vite.config.js
-│   └── src/
-│       ├── context/
-│       │   └── AuthContext.jsx
-│       ├── pages/
-│       │   ├── AuthorDashboard.jsx
-│       │   ├── CreateManuscriptPage.jsx
-│       │   ├── EditManuscriptPage.jsx
-│       │   ├── EditorDashboard.jsx
-│       │   ├── EditorDecisionPage.jsx
-│       │   ├── LoginPage.jsx
-│       │   ├── ManuscriptReviewsPage.jsx
-│       │   ├── RegisterPage.jsx
-│       │   ├── ReviewerDashboard.jsx
-│       │   └── WriteReviewPage.jsx
-│       └── routes/
-│           ├── AppRoutes.jsx
-│           └── ProtectedRoute.jsx
-│
-├── 📂 ai-service/
-│   ├── requirements.txt
-│   ├── test_ai_content.py
-│   └── app/
-│       ├── main.py
-│       ├── models/
-│       │   ├── ai_content_analysis.py
-│       │   ├── manuscript_analysis.py
-│       │   ├── pdf_screening.py
-│       │   └── similarity_analysis.py
-│       ├── routes/
-│       │   ├── ai_content_analysis.py
-│       │   ├── manuscript_analysis.py
-│       │   ├── pdf_screening.py
-│       │   └── similarity_analysis.py
-│       └── services/
-│           ├── ai_content_service.py
-│           ├── llm_analysis_service.py
-│           ├── manuscript_analysis_service.py
-│           ├── pdf_extraction_service.py
-│           └── similarity_analysis_service.py
-│
+├── backend/       # Spring Boot API and persistence
+├── frontend/      # React/Vite web application
+├── ai-service/    # FastAPI analysis service
 ├── .gitignore
 ├── PROJECT_RULES.md
 └── README.md
 ```
 
----
-
-# ⚙️ Setup
-
 ## Prerequisites
 
-Install:
+Install Git, JDK 21, Maven (or the project's Maven wrapper), Node.js/npm, Python 3, and PostgreSQL. A Groq API key is optional for LLM-backed functionality.
 
-- Git
-- JDK 21
-- Maven
-- Node.js and npm
-- Python 3.x
-- PostgreSQL 18
-- A Groq API key if using the LLM-backed AI functionality
+Verify the installations:
 
-Verify:
-
-```bash
+```powershell
 git --version
 java -version
 mvn -version
@@ -625,410 +86,167 @@ python --version
 psql --version
 ```
 
----
+## Local setup
 
-## 1. Clone the Repository
+### 1. Clone the repository
 
-```bash
+```powershell
 git clone https://github.com/sachinyaganti/AI-Research-Journal-Management-System.git
 cd AI-Research-Journal-Management-System
 ```
 
----
+### 2. Configure PostgreSQL
 
-## 2. Configure PostgreSQL
-
-Create the application database:
+Create the database:
 
 ```sql
 CREATE DATABASE research_journal_db;
 ```
 
-Configure the backend in:
-
-```text
-backend/src/main/resources/application.properties
-```
-
-Example:
+Configure the connection in `backend/src/main/resources/application.properties` (or use environment variables if supported by your local configuration). Example:
 
 ```properties
 spring.datasource.url=jdbc:postgresql://localhost:5432/research_journal_db
-spring.datasource.username=YOUR_USERNAME
-spring.datasource.password=YOUR_PASSWORD
+spring.datasource.username=YOUR_DB_USERNAME
+spring.datasource.password=YOUR_DB_PASSWORD
 ```
 
----
+Do not commit real database credentials.
 
-## 3. Configure AI Environment
+### 3. Start the backend
 
-Create an environment file for the AI service if required by your local configuration.
-
-Example:
-
-```env
-GROQ_API_KEY=YOUR_GROQ_API_KEY
-```
-
-Do **not** commit the real API key.
-
----
-
-## 4. Start the Spring Boot Backend
-
-Windows:
+In a terminal:
 
 ```powershell
 cd backend
-.mvnw.cmd clean install
-.mvnw.cmd spring-boot:run
-```
-
-Or, when Maven is installed globally:
-
-```bash
-cd backend
-mvn clean install
+mvn clean test
 mvn spring-boot:run
 ```
 
-Default backend:
+If the repository includes a Maven wrapper, you can use `.\mvnw.cmd` in place of `mvn`.
 
-```text
-http://localhost:8080
-```
+Default backend URL: `http://localhost:8080`
 
----
+### 4. Start the frontend
 
-## 5. Start the React Frontend
+In a second terminal:
 
-Open another terminal:
-
-```bash
+```powershell
 cd frontend
 npm install
 npm run dev
 ```
 
-Default Vite development server:
+Default Vite URL: `http://localhost:5173`
 
-```text
-http://localhost:5173
-```
-
-Production build:
-
-```bash
-npm run build
-```
-
-Lint:
-
-```bash
-npm run lint
-```
-
----
-
-## 6. Start the FastAPI AI Service
-
-Open another terminal:
-
-```bash
-cd ai-service
-python -m venv venv
-```
-
-### Windows
+Validate the frontend:
 
 ```powershell
-venv\Scripts\activate
-```
-
-Install dependencies:
-
-```bash
-pip install -r requirements.txt
-```
-
-Start the service:
-
-```bash
-uvicorn app.main:app --reload --port 8001
-```
-
-The AI service is configured for the Spring Boot clients at:
-
-```text
-http://localhost:8001
-```
-
-Start it on port `8001` so the backend AI clients can communicate with it.
-
-Health check:
-
-```text
-http://localhost:8000/health
-```
-
-FastAPI documentation:
-
-```text
-http://localhost:8000/docs
-```
-
----
-
-# 🔗 Service Communication
-
-> **Important local configuration:** The Spring Boot AI clients currently use `http://localhost:8001` as their FastAPI base URL. If you change the AI-service port or host, update the corresponding client configuration in `backend/src/main/java/com/researchjournal/client/` as well.
-
-The application uses the following local development services:
-
-| Service | Default URL | Purpose |
-|---|---|---|
-| React/Vite | `http://localhost:5173` | Frontend |
-| Spring Boot | `http://localhost:8080` | Main REST backend |
-| FastAPI | `http://localhost:8000` | AI/document processing |
-| PostgreSQL | `localhost:5432` | Database |
-
-The Spring Boot backend contains dedicated clients for communicating with AI functionality, including:
-
-- `AIAnalysisClient`
-- `AIContentAnalysisClient`
-- `PdfExtractionClient`
-- `SimilarityAnalysisClient`
-
----
-
-# 🧪 Testing
-
-## Backend
-
-Run the backend test suite:
-
-```bash
-cd backend
-mvn test
-```
-
-## AI Service
-
-The repository contains AI-content testing support:
-
-```bash
-cd ai-service
-pytest
-```
-
-## Frontend
-
-Build validation:
-
-```bash
-cd frontend
 npm run build
-```
-
-Lint validation:
-
-```bash
 npm run lint
 ```
 
-### Recommended functional testing
+### 5. Start the AI service
 
-- Registration and login
-- JWT authentication
-- Role-based authorization
-- Manuscript creation
-- Manuscript editing
-- PDF upload
-- PDF extraction
-- Reviewer assignment
-- Review submission
-- Revision workflow
-- Editorial decisions
-- Decision history
-- AI manuscript analysis
-- AI-content analysis
-- Similarity analysis
-- Backend-to-FastAPI communication
+In a third terminal:
 
----
-
-# 📊 Current Implementation
-
-| Module | Status |
-|---|:---:|
-| React + Vite frontend | ✅ |
-| Author dashboard | ✅ |
-| Reviewer dashboard | ✅ |
-| Editor dashboard | ✅ |
-| Manuscript creation/editing | ✅ |
-| Manuscript submission | ✅ |
-| PDF upload | ✅ |
-| Reviewer assignment | ✅ |
-| Review management | ✅ |
-| Revision workflow | ✅ |
-| Editorial decisions | ✅ |
-| Decision history | ✅ |
-| JWT authentication | ✅ |
-| Spring Security | ✅ |
-| BCrypt password hashing | ✅ |
-| PostgreSQL persistence | ✅ |
-| FastAPI AI service | ✅ |
-| PDF screening/extraction | ✅ |
-| Manuscript analysis | ✅ |
-| AI-content analysis | ✅ |
-| Similarity analysis | ✅ |
-| Groq/LLM analysis layer | ✅ |
-| AI reviewer recommendation | 🚧 Planned |
-| Docker deployment | 🚧 Planned |
-| CI/CD | 🚧 Planned |
-| Cloud deployment | 🚧 Planned |
-
----
-
-# 🖥️ Application Screenshots
-
-Recommended screenshots for the repository:
-
-```text
-screenshots/
-├── login.png
-├── registration.png
-├── author-dashboard.png
-├── manuscript-submission.png
-├── pdf-upload.png
-├── reviewer-dashboard.png
-├── review-page.png
-├── editor-dashboard.png
-├── reviewer-assignment.png
-├── ai-analysis.png
-└── decision-history.png
+```powershell
+cd ai-service
+python -m venv venv
+.\venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+uvicorn app.main:app --reload --port 8000
 ```
 
-Add images using:
+Default AI service URL: `http://localhost:8000`
 
-```md
-![Author Dashboard](screenshots/author-dashboard.png)
+Health check: `http://localhost:8000/health`  
+Interactive API docs: `http://localhost:8000/docs`
+
+The checked-in Spring Boot AI clients use `http://localhost:8000` as their base URL. If you change the port, update all relevant client configuration consistently.
+
+### 6. Configure Groq (optional)
+
+Set `GROQ_API_KEY` in the environment or the private environment file expected by the AI service. Never commit a real key. If using a `.env` file, ensure it is ignored by Git.
+
+## API overview
+
+The FastAPI service currently registers these routes:
+
+| Method | Endpoint | Purpose |
+|---|---|---|
+| `GET` | `/health` | Health check |
+| `POST` | `/api/analysis/screen-pdf` | Validate and extract PDF text |
+| `POST` | `/api/analysis/manuscript` | Analyze manuscript metadata/content |
+| `POST` | `/api/analysis/ai-content` | Return AI-content text indicators |
+| `POST` | `/api/analysis/similarity` | Compare text against candidates |
+
+The Spring Boot backend exposes the main application APIs. Inspect the controller classes for the exact endpoint paths, request bodies, and authorization requirements.
+
+## Testing checklist
+
+Run automated checks:
+
+```powershell
+# Backend
+cd backend
+mvn clean test
+
+# Frontend (from repository root after returning)
+cd ..\frontend
+npm run build
+npm run lint
+
+# AI service
+cd ..\ai-service
+python -m pytest
 ```
 
----
+Not every test command is guaranteed to pass until dependencies and environment variables are configured. Record actual test output before describing the project as fully verified.
 
-# 🚀 Roadmap
+Manually test the main end-to-end flows:
 
-## 🤖 AI
+1. Register and log in with each supported role.
+2. Confirm protected routes reject missing or invalid tokens.
+3. Create, edit, and submit a manuscript as an author.
+4. Upload a valid PDF and verify extraction; test empty, invalid, and scanned PDFs.
+5. Assign a reviewer as an editor.
+6. Submit a review as the assigned reviewer.
+7. Confirm confidential comments are only visible to authorized editors.
+8. Request a revision, upload the revision, and verify status/history.
+9. Record an editorial decision and test the publication flow.
+10. Call each AI endpoint and confirm Spring Boot can reach FastAPI.
+11. Test behavior when the Groq key is absent or the provider is unavailable.
 
-- Semantic reviewer recommendation
-- Better manuscript classification
-- Research-paper summarization
-- Keyword and topic extraction
-- Citation/reference analysis
-- Improved similarity detection
-- AI-assisted review summarization
-- Research trend analysis
+## Current verification status
 
-## 📊 Analytics
+Feature code being present in the repository does not by itself prove that the whole application works. Before a release or demo, run the backend tests, frontend build/lint, AI tests, and the end-to-end checks above. In particular, retest role authorization and reviewer assignment with a fresh token.
 
-- Editorial performance dashboards
-- Reviewer workload analytics
-- Manuscript processing time
-- Acceptance/rejection statistics
-- Publication trends
+## Security and responsible AI
 
-## 🔔 Notifications
+- Keep API keys, JWT secrets, and database passwords out of Git.
+- Use environment variables or a secret manager for deployment.
+- Protect unpublished manuscripts and reviewer comments.
+- Enforce authorization on the backend, not only in the frontend.
+- AI and similarity results can be inaccurate; humans must make editorial decisions.
+- Before production, add integration tests, logging/monitoring, backups, and deployment-specific security configuration.
 
-- Email notifications
-- Reviewer assignment alerts
-- Revision reminders
-- Editorial decision notifications
-- Publication notifications
+## Roadmap
 
-## ☁️ Deployment
+- Improve semantic similarity and reviewer recommendations.
+- Add notifications and editorial analytics.
+- Expand automated integration and authorization tests.
+- Add containerized deployment and CI/CD.
+- Deploy frontend, backend, AI service, and database with secure configuration.
 
-- Docker containers
-- GitHub Actions CI/CD
-- Cloud deployment
-- Kubernetes
-- Production monitoring
-- Centralized logging
-- Automated integration tests
+## Developer
 
----
+**Yaganti Deepak Sachin Sai Chowdary**  
+B.Tech — Computer Science and Engineering, KLEF Deemed to be University
 
-# 🛡️ Responsible AI
-
-The AI components are designed to assist the research-publication workflow, not replace human editorial judgment.
-
-Production deployment should consider:
-
-- False positives and false negatives
-- AI-result explainability
-- Human verification
-- Manuscript privacy
-- Protection of unpublished research
-- Secure API-key management
-- Auditability of AI-assisted decisions
+- GitHub: https://github.com/sachinyaganti
+- Repository: https://github.com/sachinyaganti/AI-Research-Journal-Management-System
 
 ---
 
-# 💡 What This Project Demonstrates
-
-This project demonstrates practical experience with:
-
-- Full-stack web development
-- React application architecture
-- REST API development
-- Spring Boot
-- Spring Security
-- JWT authentication
-- Role-based authorization
-- PostgreSQL and JPA
-- File upload and PDF processing
-- Python FastAPI
-- LLM/API integration
-- AI-assisted document analysis
-- Similarity analysis
-- Microservice-style architecture
-- API-to-API communication
-- Workflow/state management
-- Testing and debugging
-
----
-
-# 🎓 Academic Project
-
-This project was developed as an academic full-stack software project focused on applying **software engineering, database management, web development, security, document processing, and AI integration** to a real-world research publication workflow.
-
----
-
-# 👨‍💻 Developer
-
-## Yaganti Deepak Sachin Sai Chowdary
-
-**B.Tech — Computer Science and Engineering**  
-**KLEF Deemed to be University**
-
-urlGitHub Profilehttps://github.com/sachinyaganti
-
----
-
-# 🔗 Repository
-
-urlAI-Research-Journal-Management-Systemhttps://github.com/sachinyaganti/AI-Research-Journal-Management-System
-
----
-
-# 📄 License
-
-This project is developed for **academic and educational purposes**.
-
----
-
-<p align="center">
-  <strong>📚 Research • 🤖 AI • 🔐 Security • ⚛️ Full Stack • 🚀 Automation</strong>
-  <br/>
-  Building a smarter digital workflow for academic publishing.
-</p>
+Academic project for exploring full-stack development, secure workflow management, document processing, and AI-assisted research publishing.
