@@ -428,7 +428,7 @@ function EditorDashboard() {
 
                   <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
                     <a
-                      href={`${API_BASE_URL}/api/manuscripts/${manuscript.id}/pdf`}
+                      href={`${API_BASE_URL}/api/manuscripts/${manuscript.id}/pdf${token ? `?token=${encodeURIComponent(token)}` : ""}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="btn btn-secondary"

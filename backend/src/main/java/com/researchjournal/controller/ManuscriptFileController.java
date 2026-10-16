@@ -91,9 +91,10 @@ public class ManuscriptFileController {
                 return ResponseEntity.ok(response);
         }
 
-        @GetMapping("/{manuscriptId}/file")
+        @GetMapping({ "/{manuscriptId}/file", "/{manuscriptId}/pdf" })
         public ResponseEntity<Resource> downloadFile(
                         @PathVariable Long manuscriptId,
+                        @RequestParam(value = "download", required = false) Boolean download,
                         Authentication authentication) throws IOException {
 
                 User currentUser = authentication != null ? (User) authentication.getPrincipal() : null;
@@ -137,7 +138,8 @@ public class ManuscriptFileController {
                                 .contentType(MediaType.APPLICATION_PDF)
                                 .header(
                                                 HttpHeaders.CONTENT_DISPOSITION,
-                                                "inline; filename=\"" +
+                                                (Boolean.TRUE.equals(download) ? "attachment" : "inline") +
+                                                                "; filename=\"" +
                                                                 manuscript.getFileName() +
                                                                 "\"")
                                 .contentLength(fileBytes.length)

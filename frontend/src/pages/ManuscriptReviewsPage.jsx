@@ -67,7 +67,7 @@ function ManuscriptReviewsPage() {
         </button>
 
         <a
-          href={`${API_BASE_URL}/api/manuscripts/${manuscriptId}/pdf`}
+          href={`${API_BASE_URL}/api/manuscripts/${manuscriptId}/pdf${token ? `?token=${encodeURIComponent(token)}` : ""}`}
           target="_blank"
           rel="noopener noreferrer"
           className="btn btn-secondary"

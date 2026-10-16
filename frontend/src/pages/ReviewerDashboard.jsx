@@ -204,7 +204,7 @@ function ReviewerDashboard() {
 
                   <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
                     <a
-                      href={`${API_BASE_URL}/api/manuscripts/${assignment.manuscriptId}/pdf`}
+                      href={`${API_BASE_URL}/api/manuscripts/${assignment.manuscriptId}/pdf${token ? `?token=${encodeURIComponent(token)}` : ""}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="btn btn-secondary"

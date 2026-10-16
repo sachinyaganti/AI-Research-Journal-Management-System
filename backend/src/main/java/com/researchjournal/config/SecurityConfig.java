@@ -24,11 +24,15 @@ import java.util.List;
 
 @Configuration
 @EnableMethodSecurity
-@RequiredArgsConstructor
 public class SecurityConfig {
 
         private final JwtService jwtService;
         private final UserRepository userRepository;
+
+        public SecurityConfig(JwtService jwtService, UserRepository userRepository) {
+                this.jwtService = jwtService;
+                this.userRepository = userRepository;
+        }
 
         @Bean
         public JwtAuthenticationFilter jwtAuthenticationFilter() {
@@ -99,6 +103,12 @@ public class SecurityConfig {
                                                                 "/swagger-ui/**",
                                                                 "/v3/api-docs/**",
                                                                 "/error")
+                                                .permitAll()
+
+                                                .requestMatchers(
+                                                                HttpMethod.GET,
+                                                                "/api/manuscripts/*/file",
+                                                                "/api/manuscripts/*/pdf")
                                                 .permitAll()
 
                                                 .requestMatchers(

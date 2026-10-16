@@ -168,7 +168,7 @@ function WriteReviewPage() {
             </div>
 
             <a
-              href={`${API_BASE_URL}/api/manuscripts/${assignment.manuscriptId}/pdf`}
+              href={`${API_BASE_URL}/api/manuscripts/${assignment.manuscriptId}/pdf${token ? `?token=${encodeURIComponent(token)}` : ""}`}
               target="_blank"
               rel="noopener noreferrer"
               className="btn btn-primary"
