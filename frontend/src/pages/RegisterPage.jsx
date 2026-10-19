@@ -3,7 +3,9 @@ import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import GoogleAuthButton from "../components/GoogleAuthButton.jsx";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://research-journal-backend-docker.onrender.com";
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ||
+  "https://research-journal-backend-docker.onrender.com";
 
 function RegisterPage() {
   const navigate = useNavigate();
@@ -20,10 +22,12 @@ function RegisterPage() {
   const [loading, setLoading] = useState(false);
 
   const handleChange = (event) => {
-    setFormData({
-      ...formData,
-      [event.target.name]: event.target.value,
-    });
+    const { name, value } = event.target;
+
+    setFormData((previous) => ({
+      ...previous,
+      [name]: value,
+    }));
   };
 
   const handleSubmit = async (event) => {
@@ -31,55 +35,79 @@ function RegisterPage() {
     setError("");
 
     if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match");
+      setError("Passwords do not match.");
       return;
     }
 
     if (formData.password.length < 6) {
-      setError("Password must be at least 6 characters long");
+      setError("Password must be at least 6 characters long.");
       return;
     }
 
     setLoading(true);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          fullName: formData.fullName,
-          email: formData.email,
-          password: formData.password,
-        }),
-      });
+      const response = await fetch(
+        `${API_BASE_URL} /api/auth / register`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            fullName: formData.fullName.trim(),
+            email: formData.email.trim(),
+            password: formData.password,
+            role: "AUTHOR",
+          }),
+        }
+      );
 
-      const data = await response.json();
+      const data = await response.json().catch(() => ({}));
 
       if (!response.ok) {
-        throw new Error(data.message || "Registration failed");
+        throw new Error(
+          data.message ||
+          data.detail ||
+          (typeof data === "string" ? data : "") ||
+          `Registration failed(HTTP ${response.status}).`
+        );
       }
 
-      // Auto-login after registration
-      const loginRes = await fetch(`${API_BASE_URL}/api/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.password,
-        }),
-      });
+      // Sign in automatically after successful registration.
+      const loginResponse = await fetch(
+        `${API_BASE_URL} /api/auth / login`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: formData.email.trim(),
+            password: formData.password,
+          }),
+        }
+      );
 
-      if (loginRes.ok) {
-        const loginData = await loginRes.json();
-        login(loginData);
-        navigate("/author");
-      } else {
-        navigate("/login");
+      const loginData = await loginResponse.json().catch(() => ({}));
+
+      if (!loginResponse.ok) {
+        navigate("/login", {
+          state: {
+            message:
+              "Account created successfully. Please sign in with your new credentials.",
+          },
+        });
+        return;
       }
+
+      login(loginData);
+      navigate("/author");
     } catch (err) {
-      setError(err.message || "Registration failed");
+      setError(
+        err.message ||
+        "Unable to register. Please check your connection and try again."
+      );
     } finally {
       setLoading(false);
     }
@@ -137,15 +165,16 @@ function RegisterPage() {
               <line x1="23" y1="11" x2="17" y2="11" />
             </svg>
           </div>
+
           <h1 style={{ fontSize: "1.75rem", margin: "0 0 6px" }}>
             Create an Account
           </h1>
+
           <p style={{ color: "var(--text-muted)", fontSize: "0.9rem" }}>
             Join as an author to submit and track your research papers
           </p>
         </div>
 
-        {/* Google Sign-Up Button */}
         <div style={{ marginBottom: "20px" }}>
           <GoogleAuthButton mode="signup" />
         </div>
@@ -158,16 +187,44 @@ function RegisterPage() {
             gap: "12px",
           }}
         >
-          <div style={{ flex: 1, height: "1px", background: "var(--border-subtle)" }} />
-          <span style={{ fontSize: "0.75rem", color: "var(--text-dim)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+          <div
+            style={{
+              flex: 1,
+              height: "1px",
+              background: "var(--border-subtle)",
+            }}
+          />
+
+          <span
+            style={{
+              fontSize: "0.75rem",
+              color: "var(--text-dim)",
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+            }}
+          >
             Or register with email
           </span>
-          <div style={{ flex: 1, height: "1px", background: "var(--border-subtle)" }} />
+
+          <div
+            style={{
+              flex: 1,
+              height: "1px",
+              background: "var(--border-subtle)",
+            }}
+          />
         </div>
 
         {error && (
           <div className="alert alert-danger" role="alert">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
               <circle cx="12" cy="12" r="10" />
               <line x1="12" y1="8" x2="12" y2="12" />
               <line x1="12" y1="16" x2="12.01" y2="16" />
@@ -176,7 +233,10 @@ function RegisterPage() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} style={{ display: "grid", gap: "14px" }}>
+        <form
+          onSubmit={handleSubmit}
+          style={{ display: "grid", gap: "14px" }}
+        >
           <div>
             <label htmlFor="fullName">Full Name</label>
             <input
@@ -184,9 +244,10 @@ function RegisterPage() {
               name="fullName"
               type="text"
               className="input"
-              placeholder="e.g. Dr. Alex Mercer"
+              placeholder="e.g. Alex Mercer"
               value={formData.fullName}
               onChange={handleChange}
+              autoComplete="name"
               required
             />
           </div>
@@ -198,9 +259,10 @@ function RegisterPage() {
               name="email"
               type="email"
               className="input"
-              placeholder="e.g. alex.mercer@university.edu"
+              placeholder="e.g. alex@university.edu"
               value={formData.email}
               onChange={handleChange}
+              autoComplete="email"
               required
             />
           </div>
@@ -215,6 +277,8 @@ function RegisterPage() {
               placeholder="Minimum 6 characters"
               value={formData.password}
               onChange={handleChange}
+              autoComplete="new-password"
+              minLength={6}
               required
             />
           </div>
@@ -229,6 +293,8 @@ function RegisterPage() {
               placeholder="Re-enter password"
               value={formData.confirmPassword}
               onChange={handleChange}
+              autoComplete="new-password"
+              minLength={6}
               required
             />
           </div>
@@ -236,16 +302,30 @@ function RegisterPage() {
           <button
             type="submit"
             className="btn btn-primary"
-            style={{ width: "100%", padding: "12px", marginTop: "8px" }}
+            style={{
+              width: "100%",
+              padding: "12px",
+              marginTop: "8px",
+            }}
             disabled={loading}
           >
             {loading ? "Creating Account..." : "Create Author Account"}
           </button>
         </form>
 
-        <p style={{ marginTop: "24px", textAlign: "center", fontSize: "0.88rem", color: "var(--text-muted)" }}>
+        <p
+          style={{
+            marginTop: "24px",
+            textAlign: "center",
+            fontSize: "0.88rem",
+            color: "var(--text-muted)",
+          }}
+        >
           Already have an account?{" "}
-          <Link to="/login" style={{ fontWeight: 600, color: "#a5b4fc" }}>
+          <Link
+            to="/login"
+            style={{ fontWeight: 600, color: "#a5b4fc" }}
+          >
             Sign In
           </Link>
         </p>
