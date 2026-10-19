@@ -83,10 +83,8 @@ function RegisterPage() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            fullName: formData.fullName.trim(),
             email: formData.email.trim(),
             password: formData.password,
-            role: "AUTHOR",
           }),
         }
       );
