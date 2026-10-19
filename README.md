@@ -1,252 +1,495 @@
-# AI-Enabled Research Journal Management System
+# 🔬 AI-Enabled Research Journal Management System
 
-A full-stack academic journal workflow application for manuscript submission, reviewer assignment, peer review, revisions, editorial decisions, publication tracking, and AI-assisted document analysis.
+<p align="center">
+  <strong>An intelligent, full-stack platform for research manuscript management and AI-assisted evaluation.</strong>
+</p>
 
-## Technology stack
+<p align="center">
+  <a href="https://ai-research-journal-management-system-6p5qu79k1.vercel.app/">
+    <img src="https://img.shields.io/badge/Live%20Application-Visit%20Website-2563EB?style=for-the-badge&logo=vercel&logoColor=white" alt="Live Application"/>
+  </a>
+  <a href="https://github.com/sachinyaganti/AI-Research-Journal-Management-System">
+    <img src="https://img.shields.io/badge/GitHub-Source%20Code-181717?style=for-the-badge&logo=github" alt="GitHub Repository"/>
+  </a>
+  <a href="https://ai-service-eaau.onrender.com/docs">
+    <img src="https://img.shields.io/badge/AI%20API-Swagger%20Docs-16A34A?style=for-the-badge&logo=fastapi&logoColor=white" alt="AI API Documentation"/>
+  </a>
+</p>
 
-- **Frontend:** React 19, Vite 8, React Router, Axios
-- **Backend:** Java 21, Spring Boot 4.1.x, Spring Security, Spring Data JPA
-- **Database:** PostgreSQL
-- **AI service:** Python, FastAPI, Pydantic, pypdf
-- **LLM integration:** Groq (optional; configure an API key privately)
-- **Authentication:** JWT and BCrypt
+<p align="center">
+  <img src="https://img.shields.io/badge/React-Frontend-61DAFB?style=flat-square&logo=react&logoColor=black" alt="React"/>
+  <img src="https://img.shields.io/badge/Java-21-ED8B00?style=flat-square&logo=openjdk&logoColor=white" alt="Java 21"/>
+  <img src="https://img.shields.io/badge/Spring%20Boot-Backend-6DB33F?style=flat-square&logo=springboot&logoColor=white" alt="Spring Boot"/>
+  <img src="https://img.shields.io/badge/Python-AI%20Service-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python"/>
+  <img src="https://img.shields.io/badge/FastAPI-REST%20API-009688?style=flat-square&logo=fastapi&logoColor=white" alt="FastAPI"/>
+  <img src="https://img.shields.io/badge/PostgreSQL-Database-4169E1?style=flat-square&logo=postgresql&logoColor=white" alt="PostgreSQL"/>
+</p>
 
-> Version badges and package versions can drift. Check each component's `package.json`, `pom.xml`, and `requirements.txt` for the exact installed versions.
+---
 
-## Features
+## 🌐 Live Demo
 
-### Author workflow
-- Register and sign in.
-- Create, edit, and submit manuscripts.
+| Service | Link |
+|---|---|
+| **Live Web Application** | [Launch Application](https://ai-research-journal-management-system-6p5qu79k1.vercel.app/) |
+| **GitHub Repository** | [View Source Code](https://github.com/sachinyaganti/AI-Research-Journal-Management-System) |
+| **Spring Boot Backend** | [Open Backend Service](https://research-journal-backend-docker.onrender.com) |
+| **Backend Health Check** | [Check API Health](https://research-journal-backend-docker.onrender.com/api/health) |
+| **FastAPI AI Service** | [Open AI Service](https://ai-service-eaau.onrender.com) |
+| **Interactive AI API Docs** | [Explore Swagger UI](https://ai-service-eaau.onrender.com/docs) |
+
+> **Deployment note:** The application is hosted using free-tier cloud services. Initial requests may take longer if a service needs to wake up after inactivity. Individual features may require successful backend, database, and AI-provider configuration.
+
+---
+
+## 📌 Overview
+
+The **AI-Enabled Research Journal Management System** is a full-stack web application developed to organize the research publication lifecycle, from manuscript submission to review, revision, and publication.
+
+Traditional research workflows can involve disconnected tools, manual document handling, repetitive evaluation tasks, and limited visibility into manuscript status. This project brings core manuscript-management operations into a centralized web platform and integrates AI-assisted analysis to support the evaluation process.
+
+The application combines:
+
+- A responsive React-based user interface.
+- A Java Spring Boot REST API.
+- PostgreSQL for persistent application data.
+- A Python FastAPI microservice for AI-related operations.
+- Cloud deployment for the frontend, backend, and AI service.
+
+The project demonstrates full-stack application development, REST API integration, authentication, database connectivity, microservice communication, document processing, and cloud deployment.
+
+## 🎯 Objectives
+
+- Digitize manuscript submission and tracking.
+- Organize author, reviewer, and editorial workflows.
+- Provide a centralized interface for manuscript management.
+- Integrate AI-assisted manuscript quality analysis.
+- Support content indicators, similarity analysis, and PDF screening.
+- Improve workflow transparency and reduce repetitive manual operations.
+- Build a maintainable application using separated frontend, backend, and AI-service components.
+
+## ✨ Core Features
+
+### 👥 1. User Authentication and Access
+
+- User registration and login.
+- JWT-based authentication for protected backend operations.
+- Role-oriented workflows for authors, reviewers, and editorial users.
+- Google authentication integration.
+
+### 📝 2. Manuscript Management
+
+- Create and manage manuscript records.
+- Enter manuscript titles, abstracts, categories, and keywords.
+- Edit manuscript details.
 - Upload research-paper PDFs.
-- Track manuscript status and review outcomes.
-- Submit revised files and author response notes where enabled.
-- View revision history where enabled.
+- Track manuscript submission and review status.
+- Support revision and publication workflows.
 
-### Reviewer workflow
-- View manuscripts assigned to the reviewer.
-- Inspect manuscript details and available PDF files.
-- Submit ratings, author-facing feedback, confidential editor comments, and a recommendation.
+### 🤖 3. AI-Assisted Manuscript Analysis
 
-### Editor workflow
-- Review submissions and assign reviewers.
-- Monitor review progress and read submitted reviews.
-- Request revisions and record editorial decisions.
-- Track manuscript status and decision history.
-- Manage publication metadata and view the public publications page where configured.
+- AI-generated content indicator analysis.
+- Manuscript quality assessment.
+- Abstract and keyword analysis.
+- Identification of potentially missing manuscript sections.
+- Writing issue identification.
+- Suggestions for manuscript improvement.
 
-### AI/document analysis
-- Validate PDF uploads and extract readable text.
-- Generate structured manuscript-quality feedback.
-- Produce text-pattern indicators related to AI-generated writing.
-- Compare manuscripts using lexical similarity analysis.
-- Use Groq-powered analysis when configured, with fallback behavior where implemented.
+### 🔍 4. Similarity Analysis
 
-**Important limitations:** AI-writing indicators are not proof of authorship. Similarity based on word-set/Jaccard overlap is lexical rather than semantic and can miss paraphrases or flag common wording. Treat AI outputs as decision-support signals, not as substitutes for human review.
+- Analyze manuscript text for potential similarity.
+- Compare submissions against supplied candidate documents where supported.
+- Review similarity results and matching information.
 
-## Architecture
+Similarity analysis depends on the available comparison corpus and implementation. A similarity score alone does not establish plagiarism.
 
-```text
-React + Vite frontend
-        |
-        v
-Spring Boot REST API ------ PostgreSQL
-        |
-        v
-FastAPI AI service
-  |       |        |
-  PDF   Manuscript Similarity/content
+### 📄 5. PDF Screening
+
+- Submit PDF documents to the AI service.
+- Support document-screening operations through a dedicated API.
+- Integrate document analysis into the broader manuscript workflow.
+
+### 🔄 6. Review and Editorial Workflow
+
+- Support reviewer assignment and evaluation workflows.
+- Facilitate review feedback and manuscript revisions.
+- Organize editorial decisions and publication status.
+
+The availability of individual workflow actions depends on the deployed application's current implementation and permissions.
+
+### ☁️ 7. Cloud Deployment
+
+- Frontend deployment on Vercel.
+- Spring Boot backend deployment on Render.
+- FastAPI AI service deployment on Render.
+- PostgreSQL database hosting through Neon.
+
+---
+
+## 🏗️ System Architecture
+
+```mermaid
+flowchart TB
+    U[Authors, Reviewers and Editors]
+    FE[React + Vite Frontend]
+    BE[Spring Boot REST API]
+    DB[(Neon PostgreSQL)]
+    AI[FastAPI AI Microservice]
+    LLM[Groq API, if configured]
+
+    U --> FE
+    FE -->|HTTPS requests| BE
+    BE -->|Data operations| DB
+    BE -->|AI requests| AI
+    AI -->|Provider requests| LLM
 ```
 
-## Repository layout
+### Architecture Responsibilities
+
+| Layer | Technology | Responsibility |
+|---|---|---|
+| Presentation | React, Vite, JavaScript | User interface, navigation, and API consumption |
+| Application | Java, Spring Boot | Business logic, REST endpoints, and application workflows |
+| Security | Spring Security, JWT | Authentication and authorization |
+| Persistence | PostgreSQL, Neon | Persistent storage for application records |
+| AI microservice | Python, FastAPI | AI analysis and document-screening endpoints |
+| AI provider | Groq API, if configured | External language-model capabilities |
+| Frontend hosting | Vercel | Web application deployment |
+| Backend hosting | Render | Spring Boot API deployment |
+| AI hosting | Render | FastAPI service deployment |
+
+## 🛠️ Technology Stack
+
+### Frontend
+- React
+- Vite
+- JavaScript
+- HTML5 and CSS3
+- REST API integration
+
+### Backend
+- Java 21
+- Spring Boot
+- Spring Security
+- JWT
+- Maven
+
+### Database
+- PostgreSQL
+- Neon
+
+### AI and Document Processing
+- Python
+- FastAPI
+- Uvicorn
+- AI-assisted text analysis
+- Manuscript similarity analysis
+- PDF screening
+- Groq integration, where configured
+
+### Tools and Deployment
+- Git and GitHub
+- Vercel
+- Render
+- Environment variables
+- RESTful services
+
+---
+
+## 📂 Repository Structure
 
 ```text
 AI-Research-Journal-Management-System/
-├── backend/       # Spring Boot API and persistence
-├── frontend/      # React/Vite web application
-├── ai-service/    # FastAPI analysis service
-├── .gitignore
-├── PROJECT_RULES.md
+│
+├── frontend/
+│   ├── public/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   └── ...
+│   ├── package.json
+│   ├── vite.config.js
+│   └── vercel.json
+│
+├── backend/
+│   ├── src/
+│   │   ├── main/
+│   │   └── test/
+│   ├── pom.xml
+│   └── ...
+│
+├── ai-service/
+│   ├── Python application modules
+│   ├── requirements.txt
+│   └── ...
+│
 └── README.md
 ```
 
-## Prerequisites
+*This is an illustrative structure. Keep the actual filenames and folders in your repository if they differ.*
 
-Install Git, JDK 21, Maven (or the project's Maven wrapper), Node.js/npm, Python 3, and PostgreSQL. A Groq API key is optional for LLM-backed functionality.
+---
 
-Verify the installations:
+## 🚀 Local Installation and Setup
 
-```powershell
-git --version
-java -version
-mvn -version
-node --version
-npm --version
-python --version
-psql --version
-```
+### Prerequisites
 
-## Local setup
+Install the following:
 
-### 1. Clone the repository
+- Git
+- JDK 21
+- Apache Maven
+- Node.js and npm
+- Python compatible with the AI-service dependencies
+- PostgreSQL or a Neon database
 
-```powershell
+### Step 1 — Clone the repository
+
+```bash
 git clone https://github.com/sachinyaganti/AI-Research-Journal-Management-System.git
+
 cd AI-Research-Journal-Management-System
 ```
 
-### 2. Configure PostgreSQL
+### Step 2 — Configure PostgreSQL
 
-Create the database:
+Create a PostgreSQL database or configure an existing Neon database.
 
-```sql
-CREATE DATABASE research_journal_db;
+Example database name:
+
+```text
+research_journal_db
 ```
 
-Configure the connection in `backend/src/main/resources/application.properties` (or use environment variables if supported by your local configuration). Example:
+Configure the JDBC URL, username, and password through environment variables. Use the exact property names expected by your Spring Boot configuration.
 
-```properties
-spring.datasource.url=jdbc:postgresql://localhost:5432/research_journal_db
-spring.datasource.username=YOUR_DB_USERNAME
-spring.datasource.password=YOUR_DB_PASSWORD
-```
+### Step 3 — Start the backend
 
-Do not commit real database credentials.
+Open a terminal in the `backend` directory.
 
-### 3. Start the backend
+Run tests:
 
-In a terminal:
-
-```powershell
-cd backend
+```bash
 mvn clean test
+```
+
+Start the backend:
+
+```bash
 mvn spring-boot:run
 ```
 
-If the repository includes a Maven wrapper, you can use `.\mvnw.cmd` in place of `mvn`.
+The default local address is:
 
-Default backend URL: `http://localhost:8080`
+```text
+http://localhost:8080
+```
 
-### 4. Start the frontend
+Configure required database settings, JWT signing secrets, CORS origins, and any other mandatory application properties before startup.
 
-In a second terminal:
+### Step 4 — Start the AI service
+
+Open another terminal in the `ai-service` directory.
+
+Create a virtual environment:
+
+```bash
+python -m venv .venv
+```
+
+Activate it in Windows PowerShell:
 
 ```powershell
-cd frontend
+.\.venv\Scripts\Activate.ps1
+```
+
+Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+Start the application using the actual module and FastAPI instance name in your repository. For example, if the application instance is named `app` in `main.py`:
+
+```bash
+uvicorn main:app --reload --host 127.0.0.1 --port 8000
+```
+
+Open the API documentation:
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+### Step 5 — Start the frontend
+
+Open another terminal in the `frontend` directory.
+
+Install dependencies:
+
+```bash
 npm install
+```
+
+Create a local `.env` file:
+
+```env
+VITE_API_BASE_URL=http://localhost:8080
+```
+
+Start Vite:
+
+```bash
 npm run dev
 ```
 
-Default Vite URL: `http://localhost:5173`
+Open the URL printed in the terminal, typically:
 
-Validate the frontend:
+```text
+http://localhost:5173
+```
 
-```powershell
+### Step 6 — Build and lint the frontend
+
+```bash
 npm run build
 npm run lint
 ```
 
-### 5. Start the AI service
+Run the lint command if it is defined in the project's `package.json`.
 
-In a third terminal:
+---
 
-```powershell
-cd ai-service
-python -m venv venv
-.\venv\Scripts\Activate.ps1
-python -m pip install -r requirements.txt
-uvicorn app.main:app --reload --port 8000
+## 🔌 AI Service API Reference
+
+The deployed FastAPI OpenAPI schema lists the following endpoints.
+
+Base URL:
+
+```text
+https://ai-service-eaau.onrender.com
 ```
-
-Default AI service URL: `http://localhost:8000`
-
-Health check: `http://localhost:8000/health`  
-Interactive API docs: `http://localhost:8000/docs`
-
-The checked-in Spring Boot AI clients use `http://localhost:8000` as their base URL. If you change the port, update all relevant client configuration consistently.
-
-### 6. Configure Groq (optional)
-
-Set `GROQ_API_KEY` in the environment or the private environment file expected by the AI service. Never commit a real key. If using a `.env` file, ensure it is ignored by Git.
-
-## API overview
-
-The FastAPI service currently registers these routes:
 
 | Method | Endpoint | Purpose |
 |---|---|---|
 | `GET` | `/health` | Health check |
-| `POST` | `/api/analysis/screen-pdf` | Validate and extract PDF text |
-| `POST` | `/api/analysis/manuscript` | Analyze manuscript metadata/content |
-| `POST` | `/api/analysis/ai-content` | Return AI-content text indicators |
-| `POST` | `/api/analysis/similarity` | Compare text against candidates |
+| `POST` | `/api/analysis/ai-content` | Analyze AI-generated content indicators |
+| `POST` | `/api/analysis/manuscript` | Analyze manuscript quality |
+| `POST` | `/api/analysis/similarity` | Perform similarity analysis |
+| `POST` | `/api/analysis/screen-pdf` | Submit a PDF for screening |
 
-The Spring Boot backend exposes the main application APIs. Inspect the controller classes for the exact endpoint paths, request bodies, and authorization requirements.
+**Explore the complete request schemas and response formats:** [Open FastAPI Swagger UI](https://ai-service-eaau.onrender.com/docs).
 
-## Testing checklist
-
-Run automated checks:
-
-```powershell
-# Backend
-cd backend
-mvn clean test
-
-# Frontend (from repository root after returning)
-cd ..\frontend
-npm run build
-npm run lint
-
-# AI service
-cd ..\ai-service
-python -m pytest
-```
-
-Not every test command is guaranteed to pass until dependencies and environment variables are configured. Record actual test output before describing the project as fully verified.
-
-Manually test the main end-to-end flows:
-
-1. Register and log in with each supported role.
-2. Confirm protected routes reject missing or invalid tokens.
-3. Create, edit, and submit a manuscript as an author.
-4. Upload a valid PDF and verify extraction; test empty, invalid, and scanned PDFs.
-5. Assign a reviewer as an editor.
-6. Submit a review as the assigned reviewer.
-7. Confirm confidential comments are only visible to authorized editors.
-8. Request a revision, upload the revision, and verify status/history.
-9. Record an editorial decision and test the publication flow.
-10. Call each AI endpoint and confirm Spring Boot can reach FastAPI.
-11. Test behavior when the Groq key is absent or the provider is unavailable.
-
-## Current verification status
-
-Feature code being present in the repository does not by itself prove that the whole application works. Before a release or demo, run the backend tests, frontend build/lint, AI tests, and the end-to-end checks above. In particular, retest role authorization and reviewer assignment with a fresh token.
-
-## Security and responsible AI
-
-- Keep API keys, JWT secrets, and database passwords out of Git.
-- Use environment variables or a secret manager for deployment.
-- Protect unpublished manuscripts and reviewer comments.
-- Enforce authorization on the backend, not only in the frontend.
-- AI and similarity results can be inaccurate; humans must make editorial decisions.
-- Before production, add integration tests, logging/monitoring, backups, and deployment-specific security configuration.
-
-## Roadmap
-
-- Improve semantic similarity and reviewer recommendations.
-- Add notifications and editorial analytics.
-- Expand automated integration and authorization tests.
-- Add containerized deployment and CI/CD.
-- Deploy frontend, backend, AI service, and database with secure configuration.
-
-## Developer
-
-**Yaganti Deepak Sachin Sai Chowdary**  
-B.Tech — Computer Science and Engineering, KLEF Deemed to be University
-
-- GitHub: https://github.com/sachinyaganti
-- Repository: https://github.com/sachinyaganti/AI-Research-Journal-Management-System
+Use the documented request fields when testing endpoints. The PDF screening endpoint accepts a file upload; the JSON endpoints require their respective request bodies.
 
 ---
 
-Academic project for exploring full-stack development, secure workflow management, document processing, and AI-assisted research publishing.
+## 🔐 Environment Variables and Security
+
+Production configuration should be managed through the environment settings of each hosting service.
+
+| Variable | Purpose |
+|---|---|
+| `VITE_API_BASE_URL` | Frontend base URL for the backend API |
+| `JWT_SECRET` | JWT signing and validation secret |
+| `SPRING_DATASOURCE_URL` | PostgreSQL JDBC connection URL |
+| `SPRING_DATASOURCE_USERNAME` | Database username |
+| `SPRING_DATASOURCE_PASSWORD` | Database password |
+| `GROQ_API_KEY` | Groq authentication, if used by the relevant service |
+
+Confirm the exact variable names against the application's configuration files.
+
+### Security checklist
+
+- Never commit API keys, database passwords, JWT secrets, or `.env` files.
+- Use strong, randomly generated JWT secrets.
+- Store production credentials in Render, Vercel, or the appropriate provider's environment settings.
+- Keep private API keys on the server side.
+- Configure CORS for trusted frontend origins.
+- Validate uploaded files and restrict file sizes and permitted types.
+- Enforce backend authorization for protected operations.
+- Protect unpublished research documents and sensitive user information.
+
+---
+
+## 🧪 Testing and Validation
+
+Recommended verification workflow:
+
+1. Run backend tests with Maven.
+2. Build the frontend.
+3. Confirm the backend health endpoint responds.
+4. Confirm the AI service health endpoint responds.
+5. Test registration and login.
+6. Verify JWT-protected API operations.
+7. Create a test manuscript.
+8. Upload a sample PDF.
+9. Test manuscript analysis and similarity endpoints.
+10. Reload frontend routes such as `/register` and `/login`.
+11. Verify database persistence and production CORS settings.
+
+A successful deployment or health check confirms service availability, not necessarily the correctness of every feature.
+
+---
+
+## ⚠️ Important Deployment Notes
+
+- The frontend must use the correct production backend URL in `VITE_API_BASE_URL`.
+- The backend must permit requests from the deployed Vercel origin.
+- The Spring Boot backend and FastAPI service must use the correct environment configuration.
+- Client-side routes require suitable Vercel rewrite configuration.
+- Free-tier hosting may introduce cold starts or temporary resource constraints.
+- AI features that depend on external services require valid provider configuration.
+- Test protected endpoints using appropriate credentials rather than exposing tokens in screenshots or logs.
+
+---
+
+## 🔮 Future Enhancements
+
+Potential future improvements include:
+
+- Intelligent reviewer recommendation.
+- Advanced manuscript similarity comparison.
+- Citation extraction and reference validation.
+- Editorial analytics and publication dashboards.
+- Email notifications for manuscript status changes.
+- Enhanced manuscript version history.
+- Audit logging and expanded security controls.
+- Automated CI/CD and expanded integration testing.
+
+These items are proposed enhancements and should not be interpreted as completed features unless implemented.
+
+---
+
+## 💡 Learning Outcomes
+
+This project provides practical experience with:
+
+- Full-stack web application development.
+- Java and Spring Boot REST API development.
+- React-based frontend development.
+- Authentication and authorization concepts.
+- PostgreSQL integration.
+- Python microservices and FastAPI.
+- AI API integration.
+- PDF upload and document-processing workflows.
+- Git version control and cloud deployment.
+- Environment configuration and debugging distributed services.
+
+---
+
+## 👨‍💻 Author
+
+**Sachin Yaganti**
+
+GitHub: [@sachinyaganti](https://github.com/sachinyaganti)
+
+Project: [AI-Enabled Research Journal Management System](https://github.com/sachinyaganti/AI-Research-Journal-Management-System)
+
+---
+
+<p align="center">
+  <strong>AI-Enabled Research Journal Management System</strong>
+  <br/>
+  <em>Streamlining research workflows with full-stack engineering and AI-assisted analysis.</em>
+</p>
