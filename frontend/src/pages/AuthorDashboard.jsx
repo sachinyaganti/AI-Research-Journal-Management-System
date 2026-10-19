@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import "./AuthorDashboard.css";
 
-const API_BASE_URL = "http://localhost:8080";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://research-journal-backend-docker.onrender.com";
 
 function AuthorDashboard() {
     const navigate = useNavigate();
@@ -1508,31 +1508,29 @@ function AuthorDashboard() {
                                                     background: manuscript.status === "REVISION_REQUIRED"
                                                         ? "rgba(245, 158, 11, 0.1)"
                                                         : manuscript.status === "PUBLISHED"
-                                                        ? "rgba(16, 185, 129, 0.1)"
-                                                        : manuscript.status === "ACCEPTED"
-                                                        ? "rgba(99, 102, 241, 0.1)"
-                                                        : "rgba(255, 255, 255, 0.03)",
-                                                    border: `1px solid ${
-                                                        manuscript.status === "REVISION_REQUIRED"
+                                                            ? "rgba(16, 185, 129, 0.1)"
+                                                            : manuscript.status === "ACCEPTED"
+                                                                ? "rgba(99, 102, 241, 0.1)"
+                                                                : "rgba(255, 255, 255, 0.03)",
+                                                    border: `1px solid ${manuscript.status === "REVISION_REQUIRED"
                                                             ? "rgba(245, 158, 11, 0.3)"
                                                             : manuscript.status === "PUBLISHED"
-                                                            ? "rgba(16, 185, 129, 0.3)"
-                                                            : manuscript.status === "ACCEPTED"
-                                                            ? "rgba(99, 102, 241, 0.3)"
-                                                            : "rgba(255, 255, 255, 0.06)"
-                                                    }`
+                                                                ? "rgba(16, 185, 129, 0.3)"
+                                                                : manuscript.status === "ACCEPTED"
+                                                                    ? "rgba(99, 102, 241, 0.3)"
+                                                                    : "rgba(255, 255, 255, 0.06)"
+                                                        }`
                                                 }}>
                                                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "10px", marginBottom: "10px" }}>
                                                         <h4 style={{ margin: 0, fontSize: "1rem", color: "#fff" }}>
                                                             Editorial Status & Peer-Review Actions
                                                         </h4>
-                                                        <span className={`badge ${
-                                                            manuscript.status === "PUBLISHED" || manuscript.status === "ACCEPTED"
+                                                        <span className={`badge ${manuscript.status === "PUBLISHED" || manuscript.status === "ACCEPTED"
                                                                 ? "badge-accepted"
                                                                 : manuscript.status === "REVISION_REQUIRED"
-                                                                ? "badge-revision"
-                                                                : "badge-submitted"
-                                                        }`}>
+                                                                    ? "badge-revision"
+                                                                    : "badge-submitted"
+                                                            }`}>
                                                             {manuscript.status.replaceAll("_", " ")}
                                                         </span>
                                                     </div>

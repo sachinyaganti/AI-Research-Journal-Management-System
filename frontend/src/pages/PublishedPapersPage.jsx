@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
-const API_BASE_URL = "http://localhost:8080";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://research-journal-backend-docker.onrender.com";
 
 export default function PublishedPapersPage() {
   const [papers, setPapers] = useState([]);
@@ -280,10 +280,10 @@ export default function PublishedPapersPage() {
                   <div style={{ fontSize: "0.82rem", color: "var(--text-muted)" }}>
                     {paper.publishedAt
                       ? new Date(paper.publishedAt).toLocaleDateString(undefined, {
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric"
-                        })
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric"
+                      })
                       : "Recently Published"}
                   </div>
                 </div>
@@ -370,19 +370,19 @@ export default function PublishedPapersPage() {
                     <span style={{ fontSize: "0.78rem", color: "var(--text-muted)" }}>Keywords:</span>
                     {paper.keywords
                       ? paper.keywords.split(",").map((kw, i) => (
-                          <span
-                            key={i}
-                            style={{
-                              fontSize: "0.75rem",
-                              background: "rgba(255, 255, 255, 0.05)",
-                              padding: "2px 8px",
-                              borderRadius: "4px",
-                              color: "var(--text-secondary)"
-                            }}
-                          >
-                            #{kw.trim()}
-                          </span>
-                        ))
+                        <span
+                          key={i}
+                          style={{
+                            fontSize: "0.75rem",
+                            background: "rgba(255, 255, 255, 0.05)",
+                            padding: "2px 8px",
+                            borderRadius: "4px",
+                            color: "var(--text-secondary)"
+                          }}
+                        >
+                          #{kw.trim()}
+                        </span>
+                      ))
                       : <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>General</span>}
                   </div>
 

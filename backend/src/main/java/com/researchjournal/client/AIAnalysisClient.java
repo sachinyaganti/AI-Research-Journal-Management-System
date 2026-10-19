@@ -1,8 +1,10 @@
+
 package com.researchjournal.client;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
@@ -13,10 +15,12 @@ public class AIAnalysisClient {
 
     private final RestClient restClient;
 
-    public AIAnalysisClient() {
+    public AIAnalysisClient(
+            @Value("${ai.service.base-url:http://localhost:8000}") String aiServiceBaseUrl) {
+
         this.restClient = RestClient
                 .builder()
-                .baseUrl("http://localhost:8000")
+                .baseUrl(aiServiceBaseUrl)
                 .build();
     }
 

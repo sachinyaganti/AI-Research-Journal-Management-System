@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 
-const API_BASE_URL = "http://localhost:8080";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://research-journal-backend-docker.onrender.com";
 
 function EditorDecisionPage() {
   const { manuscriptId } = useParams();
@@ -189,8 +189,8 @@ function EditorDecisionPage() {
                 decision === "REVISION_REQUIRED"
                   ? "Detail the mandatory revisions, methodology clarifications, or reviewer questions the author must address in their next draft..."
                   : decision === "REJECTED"
-                  ? "Provide the scholarly rationale and key reasons for rejecting this submission..."
-                  : "Enter any congratulations, final camera-ready requirements, or editorial remarks for the accepted author (optional)..."
+                    ? "Provide the scholarly rationale and key reasons for rejecting this submission..."
+                    : "Enter any congratulations, final camera-ready requirements, or editorial remarks for the accepted author (optional)..."
               }
               value={comments}
               onChange={(e) => setComments(e.target.value)}
@@ -214,8 +214,8 @@ function EditorDecisionPage() {
                   decision === "ACCEPTED"
                     ? "#10b981"
                     : decision === "REJECTED"
-                    ? "#ef4444"
-                    : "#f59e0b"
+                      ? "#ef4444"
+                      : "#f59e0b"
               }}
             >
               {submitting ? "Submitting..." : `Record Decision: ${decision.replaceAll("_", " ")}`}

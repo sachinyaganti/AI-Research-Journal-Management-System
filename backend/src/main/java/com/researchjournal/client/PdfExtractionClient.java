@@ -1,8 +1,10 @@
+
 package com.researchjournal.client;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -15,10 +17,12 @@ public class PdfExtractionClient {
 
     private final RestClient restClient;
 
-    public PdfExtractionClient() {
+    public PdfExtractionClient(
+            @Value("${ai.service.base-url:http://localhost:8000}") String aiServiceBaseUrl) {
+
         this.restClient = RestClient
                 .builder()
-                .baseUrl("http://localhost:8000")
+                .baseUrl(aiServiceBaseUrl)
                 .build();
     }
 
