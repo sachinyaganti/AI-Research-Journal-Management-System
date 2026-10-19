@@ -48,7 +48,7 @@ function RegisterPage() {
 
     try {
       const response = await fetch(
-        `${API_BASE_URL} /api/auth / register`,
+        `${API_BASE_URL}/api/auth/register`,
         {
           method: "POST",
           headers: {
@@ -76,15 +76,17 @@ function RegisterPage() {
 
       // Sign in automatically after successful registration.
       const loginResponse = await fetch(
-        `${API_BASE_URL} /api/auth / login`,
+        `${API_BASE_URL}/api/auth/login`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
+            fullName: formData.fullName.trim(),
             email: formData.email.trim(),
             password: formData.password,
+            role: "AUTHOR",
           }),
         }
       );
