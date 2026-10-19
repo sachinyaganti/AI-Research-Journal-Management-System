@@ -1,13 +1,15 @@
+
 package com.researchjournal.config;
 
 import com.researchjournal.repository.UserRepository;
 import com.researchjournal.security.JwtAuthenticationFilter;
 import com.researchjournal.security.JwtService;
-import lombok.RequiredArgsConstructor;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -18,8 +20,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
-
 import java.util.List;
 
 @Configuration
@@ -29,16 +29,16 @@ public class SecurityConfig {
         private final JwtService jwtService;
         private final UserRepository userRepository;
 
-        public SecurityConfig(JwtService jwtService, UserRepository userRepository) {
+        public SecurityConfig(
+                        JwtService jwtService,
+                        UserRepository userRepository) {
                 this.jwtService = jwtService;
                 this.userRepository = userRepository;
         }
 
         @Bean
         public JwtAuthenticationFilter jwtAuthenticationFilter() {
-                return new JwtAuthenticationFilter(
-                                jwtService,
-                                userRepository);
+                return new JwtAuthenticationFilter(jwtService, userRepository);
         }
 
         @Bean
@@ -48,33 +48,23 @@ public class SecurityConfig {
 
         @Bean
         public CorsConfigurationSource corsConfigurationSource() {
-
                 CorsConfiguration configuration = new CorsConfiguration();
 
-                configuration.setAllowedOrigins(
-                                List.of(
-                                                "http://localhost:5173",
-                                                "https://ai-research-journal-management-syst.vercel.app"));
+                configuration.setAllowedOrigins(List.of(
+                                "http://localhost:5173",
+                                "https://ai-research-journal-management-syst.vercel.app"));
 
-                configuration.setAllowedMethods(
-                                List.of(
-                                                HttpMethod.GET.name(),
-                                                HttpMethod.POST.name(),
-                                                HttpMethod.PUT.name(),
-                                                HttpMethod.DELETE.name(),
-                                                HttpMethod.OPTIONS.name()));
+                configuration.setAllowedMethods(List.of(
+                                "GET", "POST", "PUT", "PATCH",
+                                "DELETE", "OPTIONS"));
 
-                configuration.setAllowedHeaders(
-                                List.of("*"));
-
+                configuration.setAllowedHeaders(List.of("*"));
                 configuration.setAllowCredentials(true);
+                configuration.setMaxAge(3600L);
 
                 UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 
-                source.registerCorsConfiguration(
-                                "/**",
-                                configuration);
-
+                source.registerCorsConfiguration("/**", configuration);
                 return source;
         }
 
@@ -87,15 +77,13 @@ public class SecurityConfig {
                 http
                                 .csrf(csrf -> csrf.disable())
 
-                                .cors(cors -> cors.configurationSource(
-                                                corsConfigurationSource()))
+                                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
                                 .sessionManagement(session -> session.sessionCreationPolicy(
                                                 SessionCreationPolicy.STATELESS))
 
                                 .exceptionHandling(exception -> exception.authenticationEntryPoint(
-                                                new HttpStatusEntryPoint(
-                                                                HttpStatus.UNAUTHORIZED)))
+                                                new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
 
                                 .authorizeHttpRequests(auth -> auth
                                                 .requestMatchers(
@@ -114,12 +102,10 @@ public class SecurityConfig {
                                                 .permitAll()
 
                                                 .requestMatchers(
-                                                                HttpMethod.OPTIONS,
-                                                                "/**")
+                                                                HttpMethod.OPTIONS, "/**")
                                                 .permitAll()
 
-                                                .anyRequest()
-                                                .authenticated())
+                                                .anyRequest().authenticated())
 
                                 .addFilterBefore(
                                                 jwtAuthenticationFilter,
